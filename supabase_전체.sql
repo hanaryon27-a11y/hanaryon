@@ -296,19 +296,33 @@ SELECT t.id, v.label, v.image_url, v.sort_order
 FROM (VALUES
   ('2000개 이상','지력 탁상시계','/rewards/clock.webp',1),
   ('3000개 이상','자체제작 후드집업','/rewards/hoodie.webp',1),
-  ('3000개 이상','지력 탁상시계','/rewards/clock.webp',2),
+  ('3000개 이상','지력 티셔츠','/rewards/tshirt.webp',2),
+  ('3000개 이상','지력 탁상시계','/rewards/clock.webp',3),
   ('5000개 이상','자체제작 후드집업','/rewards/hoodie.webp',1),
-  ('5000개 이상','직접 조향한 디퓨저','/rewards/diffuser.webp',2),
-  ('5000개 이상','지력 탁상시계','/rewards/clock.webp',3),
-  ('5000개 이상','지력카페 입장권','/rewards/cafe-ticket.webp',4),
+  ('5000개 이상','지력 티셔츠','/rewards/tshirt.webp',2),
+  ('5000개 이상','직접 조향한 디퓨저','/rewards/diffuser.webp',3),
+  ('5000개 이상','지력 탁상시계','/rewards/clock.webp',4),
+  ('5000개 이상','지력카페 입장권','/rewards/cafe-ticket.webp',5),
   ('20000개 이상','자체제작 후드집업','/rewards/hoodie.webp',1),
-  ('20000개 이상','직접 조향한 디퓨저','/rewards/diffuser.webp',2),
-  ('20000개 이상','커스텀 마우스','/rewards/mouse.webp',3),
-  ('20000개 이상','지력 탁상시계','/rewards/clock.webp',4),
-  ('20000개 이상','지력카페 입장권','/rewards/cafe-ticket.webp',5)
+  ('20000개 이상','지력 티셔츠','/rewards/tshirt.webp',2),
+  ('20000개 이상','직접 조향한 디퓨저','/rewards/diffuser.webp',3),
+  ('20000개 이상','커스텀 마우스','/rewards/mouse.webp',4),
+  ('20000개 이상','지력 탁상시계','/rewards/clock.webp',5),
+  ('20000개 이상','지력카페 입장권','/rewards/cafe-ticket.webp',6)
 ) AS v(tier_label,label,image_url,sort_order)
 JOIN cumulative_tiers t ON t.amount_label = v.tier_label
 WHERE NOT EXISTS (SELECT 1 FROM cumulative_items);
+
+
+-- (이미 SQL을 돌린 경우) 3000개 이상 구간에 '지력 티셔츠' 추가 — 이미 있으면 건너뜀
+INSERT INTO cumulative_items (tier_id, label, image_url, sort_order)
+SELECT t.id, '지력 티셔츠', '/rewards/tshirt.webp',
+       COALESCE((SELECT MAX(i.sort_order) FROM cumulative_items i WHERE i.tier_id = t.id), 0) + 1
+  FROM cumulative_tiers t
+ WHERE t.amount_label IN ('3000개 이상', '5000개 이상', '20000개 이상')
+   AND NOT EXISTS (
+        SELECT 1 FROM cumulative_items i
+         WHERE i.tier_id = t.id AND i.label = '지력 티셔츠');
 
 
 -- TOP5 보상
