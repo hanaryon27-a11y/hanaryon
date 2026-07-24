@@ -341,7 +341,9 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
       <div class="grid2">
         <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-roulette-kicker" type="text"></div>
         <div class="field"><label>제목</label><input class="input" id="f-roulette-title" type="text" placeholder="룰렛 확률"></div>
-        <div class="field"><label>오른쪽 배지 (비우면 숨김)</label><input class="input" id="f-roulette-badge" type="text" placeholder="SAMPLE"></div>
+        <div class="field"><label>오른쪽 배지 (비우면 숨김)</label>
+          <input class="input" id="f-roulette-badge" type="text" placeholder="비워두면 아무것도 안 나와요">
+          <div class="hint">지금은 <b>비어 있어요</b>. 예: <code>이벤트 중</code> 같은 짧은 라벨이 필요할 때만 적어주세요.</div></div>
         <div class="field"><label>표 아래 각주 (비우면 숨김)</label>
           <input class="input" id="f-roulette-note" type="text" placeholder="비워두면 아무것도 안 나와요">
           <div class="hint">지금은 <b>비어 있어요</b>. 안내 문구가 필요할 때만 적어주세요.</div></div>
@@ -533,8 +535,14 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
 
     <div class="card">
       <div class="card-title">📖 보상기록 목록</div>
-      <div class="grid3">
+      <div class="grid2">
         <div class="field"><label>닉네임</label><input class="input" id="add-rec-nick" type="text" placeholder="예: 지력이"></div>
+        <div class="field"><label>SOOP 아이디 (비워도 됨)</label>
+          <input class="input" id="add-rec-soop" type="text" placeholder="예: rkdmsdl782">
+          <div class="hint">아이디를 넣으면 그 사람 <b>프로필 사진이 자동</b>으로 옆에 떠요.
+          방송국 주소 <code>sooplive.com/station/<b>rkdmsdl782</b></code>의 굵은 부분입니다.</div></div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
         <div class="field"><label>보상</label><input class="input" id="add-rec-reward" type="text" placeholder="예: 지력 탁상시계"></div>
         <div class="field"><label>상태</label>
           <select class="input" id="add-rec-status">
@@ -546,7 +554,7 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
       <div class="hint">상태에 따라 화면 배지 색이 바뀌어요 — <b>완료</b>는 붉은 인장, <b>진행중</b>은 금박, <b>대기</b>는 회색.</div>
       <div class="row-end"><button class="btn primary" data-add="record">기록 추가</button></div>
       <div class="table-wrap">
-        <table><thead><tr><th style="width:150px">닉네임</th><th>보상</th><th style="width:110px">상태</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <table><thead><tr><th style="width:56px">프사</th><th style="width:130px">닉네임</th><th style="width:150px">SOOP 아이디</th><th>보상</th><th style="width:110px">상태</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
         <tbody id="tb-record"></tbody></table>
       </div>
     </div>
@@ -702,12 +710,16 @@ var LISTS = {
   pledge:   { table:'pledges',          tbody:'tb-pledge',   cols:[{k:'amount_label'},{k:'value',t:'num'},{k:'reward'}] },
   personal: { table:'personal_rewards', tbody:'tb-personal', cols:[{k:'amount_label'},{k:'reward'}] },
   top:      { table:'top_rewards',      tbody:'tb-top',      cols:[{k:'image_url',t:'img'},{k:'label'},{k:'image_url'}] },
-  record:   { table:'reward_records',   tbody:'tb-record',   cols:[{k:'nickname'},{k:'reward'},{k:'status',t:'sel',opts:['대기','진행중','완료']}] }
+  record:   { table:'reward_records',   tbody:'tb-record',
+              cols:[{k:'soop_id',t:'soop'},{k:'nickname'},{k:'soop_id'},{k:'reward'},{k:'status',t:'sel',opts:['대기','진행중','완료']}] }
 };
 
 function cellHTML(row, c){
   if (c.t === 'img')
-    return '<img class="thumb" src="'+esc(row.image_url)+'" alt="" referrerpolicy="no-referrer"'+
+    return '<img class="thumb" src="'+esc(row[c.k])+'" alt="" referrerpolicy="no-referrer"'+
+           ' onerror="this.style.visibility=\'hidden\'">';
+  if (c.t === 'soop')
+    return '<img class="thumb" src="'+esc(soopAvatar(row.soop_id))+'" alt="" referrerpolicy="no-referrer"'+
            ' onerror="this.style.visibility=\'hidden\'">';
   if (c.t === 'sel')
     return '<select class="input" data-field="'+c.k+'">'+c.opts.map(function(o){
@@ -755,9 +767,12 @@ document.addEventListener('change', async function(e){
   if (ok){
     var arr = DATA[tbl] || [];
     for (var i=0;i<arr.length;i++) if (String(arr[i].id) === tr.dataset.id) arr[i][f.dataset.field] = val;
-    if (f.dataset.field === 'image_url'){
+    if (f.dataset.field === 'image_url' || f.dataset.field === 'soop_id'){
       var th = tr.querySelector('.thumb');
-      if (th){ th.src = val; th.style.visibility = 'visible'; }
+      if (th){
+        th.src = (f.dataset.field === 'soop_id') ? soopAvatar(val) : val;
+        th.style.visibility = 'visible';
+      }
     }
   }
 });
@@ -840,8 +855,9 @@ async function addRow(kind){
     need = v('add-rec-nick');
     if (!need) return showToast('닉네임을 적어주세요.');
     tbl = 'reward_records';
-    row = { nickname:need, reward:v('add-rec-reward'), status:v('add-rec-status') || '대기', sort_order:nextOrder(tbl) };
-    clear(['add-rec-nick','add-rec-reward']);
+    row = { nickname:need, soop_id:v('add-rec-soop'), reward:v('add-rec-reward'),
+            status:v('add-rec-status') || '대기', sort_order:nextOrder(tbl) };
+    clear(['add-rec-nick','add-rec-soop','add-rec-reward']);
   } else if (kind === 'tier'){
     need = v('add-tier-label');
     if (!need) return showToast('구간 이름을 적어주세요.');

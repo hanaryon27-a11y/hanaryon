@@ -117,11 +117,14 @@ CREATE POLICY "roulette_all" ON roulette_odds FOR ALL USING (true) WITH CHECK (t
 CREATE TABLE IF NOT EXISTS reward_records (
   id         BIGSERIAL PRIMARY KEY,
   nickname   TEXT NOT NULL,
+  soop_id    TEXT DEFAULT '',       -- SOOP 아이디 → 프로필 사진 자동 연동
   reward     TEXT NOT NULL,
   status     TEXT DEFAULT '대기',   -- 대기 / 진행중 / 완료
   sort_order INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- (예전 버전에서 만든 표에도 아이디 칸 추가)
+ALTER TABLE reward_records ADD COLUMN IF NOT EXISTS soop_id TEXT DEFAULT '';
 ALTER TABLE reward_records ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "reward_records_all" ON reward_records;
 CREATE POLICY "reward_records_all" ON reward_records FOR ALL USING (true) WITH CHECK (true);
@@ -163,7 +166,7 @@ UPDATE profile SET data = '{
   "outfit-kicker":"江東 · WU ARCHIVE / COLLECTION 01","outfit-title":"의상",
   "hair-kicker":"江東 · WU ARCHIVE / COLLECTION 02","hair-title":"헤어",
   "roulette-kicker":"江東 · WU ARCHIVE / EVENT GUIDE","roulette-title":"룰렛 확률",
-  "roulette-badge":"SAMPLE","roulette-note":"","roulette-percol":"5",
+  "roulette-badge":"","roulette-note":"","roulette-percol":"5",
   "roulette-mascot":"/bee-mascot.png",
   "pledge-kicker":"CUMULATIVE PROMISE","pledge-title":"누적공약","pledge-note":"누적으로 다 합니다",
   "pledge-current":"0",
@@ -209,6 +212,13 @@ UPDATE profile
    SET data = jsonb_set(data, '{roulette-note}', '""'::jsonb)
  WHERE id = 1
    AND data->>'roulette-note' = '확률은 교체하기 쉬운 임시 값이에요.';
+
+
+-- (이미 예전 버전 SQL을 돌렸던 경우) 룰렛 SAMPLE 배지만 비움 — 직접 쓴 글은 건드리지 않음
+UPDATE profile
+   SET data = jsonb_set(data, '{roulette-badge}', '""'::jsonb)
+ WHERE id = 1
+   AND data->>'roulette-badge' = 'SAMPLE';
 
 
 -- 컬렉션 (의상 · 헤어)

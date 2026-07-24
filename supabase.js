@@ -126,6 +126,14 @@ async function applyTheme() {
   try { paintTheme(await fetchProfile()); } catch (e) { /* 무시 */ }
 }
 
+/* ── SOOP 아이디 → 프로필 사진 주소 ──
+   예) rkdmsdl782 → https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg */
+function soopAvatar(id) {
+  id = String(id || '').trim().toLowerCase();
+  if (id.length < 2) return '';
+  return 'https://profile.img.sooplive.co.kr/LOGO/' + id.slice(0, 2) + '/' + id + '/' + id + '.jpg';
+}
+
 /* ── 토스트 ── */
 function showToast(msg, ms) {
   var t = document.getElementById('toast');

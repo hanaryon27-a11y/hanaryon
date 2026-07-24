@@ -61,6 +61,15 @@
   </div>
 </main>
 
+<!-- ── 이미지 확대 ── -->
+<div id="lightbox" aria-hidden="true">
+  <div class="lb-frame" role="dialog" aria-modal="true" aria-label="이미지 확대 보기">
+    <button class="lb-close" type="button" id="lbClose" aria-label="닫기">✕</button>
+    <img id="lbImg" alt="" referrerpolicy="no-referrer">
+    <div class="lb-cap" id="lbCap"></div>
+  </div>
+</div>
+
 <!-- ── 문의 모달 ── -->
 <div class="ask-back" id="askBack">
   <div class="ask-box" role="dialog" aria-modal="true" aria-labelledby="askTitle">
@@ -110,7 +119,7 @@ var DEFAULT_TEXT = {
   'outfit-kicker':'江東 · WU ARCHIVE / COLLECTION 01', 'outfit-title':'의상',
   'hair-kicker':'江東 · WU ARCHIVE / COLLECTION 02',   'hair-title':'헤어',
   'roulette-kicker':'江東 · WU ARCHIVE / EVENT GUIDE', 'roulette-title':'룰렛 확률',
-  'roulette-badge':'SAMPLE', 'roulette-note':'', 'roulette-percol':'5',
+  'roulette-badge':'', 'roulette-note':'', 'roulette-percol':'5',
   'roulette-mascot':'/bee-mascot.png',
   'pledge-kicker':'CUMULATIVE PROMISE', 'pledge-title':'누적공약', 'pledge-note':'누적으로 다 합니다',
   'pledge-current':'0',
@@ -416,8 +425,13 @@ function recordsHTML(){
     body = S.records.map(function(r){
       var st = String(r.status || '대기');
       var cls = st.indexOf('완료') > -1 ? 'done' : (st.indexOf('진행') > -1 ? 'ing' : 'wait');
+      var av = (typeof soopAvatar === 'function') ? soopAvatar(r.soop_id) : '';
+      var who = av
+        ? '<img class="rec-av" src="'+esc(av)+'" alt="" loading="lazy" referrerpolicy="no-referrer"'+
+          ' onerror="this.style.display=\'none\'">'
+        : '';
       return '<div class="records-row" role="row">'+
-        '<span role="cell">'+esc(r.nickname)+'</span>'+
+        '<span class="rec-who" role="cell">'+who+'<b>'+esc(r.nickname)+'</b></span>'+
         '<span role="cell">'+esc(r.reward)+'</span>'+
         '<span class="rec-state" role="cell"><i class="rec-chip '+cls+'" style="font-style:normal">'+esc(st)+'</i></span>'+
       '</div>';
@@ -567,6 +581,54 @@ document.addEventListener('click', function(e){
   }
 });
 
+/* ── 이미지 확대 ── */
+var LB_SEL = '.look-card img, .product-card img, .top-reward-image';
+var lb = document.getElementById('lightbox');
+var lbImg = document.getElementById('lbImg');
+var lbCap = document.getElementById('lbCap');
+
+function lbCaption(img){
+  var fig = img.closest('figure');
+  if (fig){
+    var cap = fig.querySelector('figcaption');
+    if (cap){
+      var kicker = cap.querySelector('span');
+      var text = cap.textContent || '';
+      if (kicker) text = text.replace(kicker.textContent, '').trim();
+      return text.trim();
+    }
+  }
+  var li = img.closest('li');
+  if (li && li.querySelector('p')) return li.querySelector('p').textContent.trim();
+  return img.getAttribute('alt') || '';
+}
+
+function lbOpen(img){
+  var src = img.getAttribute('src');
+  if (!src) return;
+  lbImg.src = src;
+  lbImg.alt = lbCaption(img);
+  var cap = lbCaption(img);
+  lbCap.textContent = cap;
+  lbCap.style.display = cap ? '' : 'none';
+  lb.classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+function lbClose(){
+  lb.classList.remove('on');
+  document.body.style.overflow = '';
+  lbImg.removeAttribute('src');
+}
+
+document.addEventListener('click', function(e){
+  var img = e.target.closest(LB_SEL);
+  if (img && !lb.classList.contains('on')){ lbOpen(img); return; }
+  if (e.target.closest('#lbClose') || e.target === lb){ lbClose(); }
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && lb.classList.contains('on')) lbClose();
+});
+
 /* ── 다크(야간 등화관제) ── */
 function paintKnob(){
   document.getElementById('darkKnob').textContent = document.body.classList.contains('dark') ? '☾' : '☀';
@@ -585,7 +647,9 @@ function askClose(){ askBack.classList.remove('on'); }
 document.getElementById('askOpen').addEventListener('click', askOpen);
 document.getElementById('askClose').addEventListener('click', askClose);
 askBack.addEventListener('click', function(e){ if (e.target === askBack) askClose(); });
-document.addEventListener('keydown', function(e){ if (e.key === 'Escape') askClose(); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && !lb.classList.contains('on')) askClose();
+});
 document.getElementById('askSend').addEventListener('click', async function(){
   var msg = document.getElementById('askMsg').value.trim();
   var nick = document.getElementById('askNick').value.trim();
