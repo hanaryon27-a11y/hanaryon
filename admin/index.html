@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🔐 지력사무소 Admin</title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/jpeg" href="https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Serif+KR:wght@500;700;900&display=swap" rel="stylesheet">
@@ -215,12 +215,32 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
         <div class="field"><label>인장 옆 영문</label>
           <input class="input" id="f-brand-sub" type="text" placeholder="JIRYEOK"></div>
       </div>
+      <div class="field"><label>파비콘 (브라우저 탭 아이콘)</label>
+        <input class="input" id="f-site-icon" type="text" placeholder="https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg">
+        <div class="hint">SOOP 프사를 쓰려면 <code>https://profile.img.sooplive.co.kr/LOGO/{아이디 앞 2글자}/{아이디}/{아이디}.jpg</code> 형식.
+        지금은 <b>rkdmsdl782</b> 프사로 맞춰져 있어요. 정사각형 이미지가 제일 깔끔합니다.</div></div>
       <div class="field"><label>검색 · 공유 설명 (SNS 미리보기)</label>
         <input class="input" id="f-site-desc" type="text" placeholder="의상과 헤어 컬렉션, 누적 공약과 후원 보상을 한눈에 확인하세요.">
         <div class="hint">카톡·X에 링크를 붙였을 때 제목 밑에 뜨는 한 줄이에요.</div></div>
       <div class="field"><label>사이드바 하단 문구 (줄바꿈=엔터)</label>
         <textarea class="input" id="f-side-note" rows="2" placeholder="江東 · WU VIRTUAL ARCHIVE&#10;JIRYEOK OFFICE"></textarea>
         <div class="hint">2줄 정도가 딱 좋아요. 길면 사이드바가 늘어납니다.</div></div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎬 화면 전환 연출</div>
+      <div class="hint" style="margin:0 0 12px">목차를 누르면 잠깐 뜨는 <b>붉은 전환 화면</b>이에요.
+      프사가 뜨고 그 아래에 <b>앞말 + 눌린 목차 이름</b>이 표시됩니다. (예: <code>한아련&amp;누적공약</code>)
+      첫 접속 로딩 화면도 같은 걸 씁니다.</div>
+      <div class="grid2">
+        <div class="field"><label>전환 화면 이미지 (프사)</label>
+          <input class="input" id="f-loader-image" type="text" placeholder="https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg">
+          <div class="hint">정사각형(1:1) 이미지가 제일 깔끔해요. 비우면 인장 글자로 대체됩니다.</div></div>
+        <div class="field"><label>이름 앞말</label>
+          <input class="input" id="f-trans-prefix" type="text" placeholder="한아련&amp;">
+          <div class="hint">뒤에 목차 이름이 자동으로 붙어요. <code>한아련&amp;</code> → <b>한아련&amp;개인보상</b></div></div>
+      </div>
       <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
     </div>
 
@@ -322,7 +342,14 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
         <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-roulette-kicker" type="text"></div>
         <div class="field"><label>제목</label><input class="input" id="f-roulette-title" type="text" placeholder="룰렛 확률"></div>
         <div class="field"><label>오른쪽 배지 (비우면 숨김)</label><input class="input" id="f-roulette-badge" type="text" placeholder="SAMPLE"></div>
-        <div class="field"><label>표 아래 각주 (비우면 숨김)</label><input class="input" id="f-roulette-note" type="text"></div>
+        <div class="field"><label>표 아래 각주 (비우면 숨김)</label>
+          <input class="input" id="f-roulette-note" type="text" placeholder="비워두면 아무것도 안 나와요">
+          <div class="hint">지금은 <b>비어 있어요</b>. 안내 문구가 필요할 때만 적어주세요.</div></div>
+        <div class="field"><label>한 열에 몇 개씩</label>
+          <input class="input" id="f-roulette-percol" type="text" inputmode="numeric" placeholder="5">
+          <div class="hint">확률표를 <b>세로 몇 칸까지</b> 채우고 다음 열로 넘길지예요.
+          <code>5</code>로 두면 항목 10개일 때 <b>왼쪽 5 · 오른쪽 5</b>로 딱 반씩 나뉩니다.
+          항목이 5개 이하면 한 열로 나와요. (좁은 화면에서는 항상 한 줄)</div></div>
       </div>
       <div class="field"><label>룰렛 가운데 마스코트 이미지 주소</label>
         <input class="input" id="f-roulette-mascot" type="text" placeholder="/bee-mascot.png">
@@ -599,7 +626,7 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
 (function(){
 'use strict';
 
-var ADMIN_PW = '임시비번1234';
+var ADMIN_PW = '9781';
 
 /* ── ⚠️ 페이지가 읽는 키 = 이 배열 = f-{키} 입력칸. 셋이 항상 같아야 함 ── */
 var profileKeys = [
@@ -622,7 +649,8 @@ var profileKeys = [
   'pledge-next-prefix','pledge-next-suffix','pledge-all-done',
   'pledge-st-done','pledge-st-next','pledge-st-wait','empty-pledge',
   'empty-personal','empty-tier','empty-cumul','empty-top',
-  'rec-th-nick','rec-th-reward','rec-th-status','rec-glyph'
+  'rec-th-nick','rec-th-reward','rec-th-status','rec-glyph','site-icon','roulette-percol',
+  'loader-image','trans-prefix'
 ];
 var themeKeys = ['theme-wu-red','theme-accent','theme-gold','theme-signal','theme-ink','theme-paper'];
 

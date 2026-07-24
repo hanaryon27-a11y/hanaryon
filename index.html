@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>지력사무소 | 후원 보상 안내</title>
+<title>한아련&amp;지력사무소</title>
 <meta name="description" content="의상과 헤어 컬렉션, 누적 공약과 후원 보상을 한눈에 확인하세요.">
-<meta property="og:title" content="지력사무소 | 후원 보상 안내">
+<meta property="og:title" content="한아련&amp;지력사무소">
 <meta property="og:description" content="의상과 헤어 컬렉션, 누적 공약과 후원 보상을 한눈에 확인하세요.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" id="siteIcon" type="image/jpeg" href="https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Serif+KR:wght@500;600;700;900&display=swap" rel="stylesheet">
@@ -19,7 +19,25 @@
 <body>
 <script>try{if(localStorage.getItem('theme')==='dark')document.body.classList.add('dark');}catch(e){}</script>
 
-<div id="wuload"><div class="stamp" id="loadStamp">吳</div></div>
+<div id="wuload">
+  <div class="wt-box">
+    <img class="wt-av" id="loadAv" alt="" referrerpolicy="no-referrer"
+         onerror="this.style.display='none';var f=document.getElementById('loadStamp');if(f)f.style.display='grid'">
+    <span class="wt-stamp" id="loadStamp">吳</span>
+    <span class="wt-line"></span>
+    <div class="wt-name" id="loadName"></div>
+  </div>
+</div>
+
+<div id="wutrans" aria-hidden="true">
+  <div class="wt-box">
+    <img class="wt-av" id="transAv" alt="" referrerpolicy="no-referrer"
+         onerror="this.style.display='none';var f=document.getElementById('transStamp');if(f)f.style.display='grid'">
+    <span class="wt-stamp" id="transStamp">吳</span>
+    <span class="wt-line"></span>
+    <div class="wt-name" id="transName"></div>
+  </div>
+</div>
 <div id="fx" aria-hidden="true"></div>
 
 <main class="site-shell">
@@ -77,7 +95,10 @@ var NAV_ORDER = ['main','pledge','personal','cumulative','top5','records'];
 
 /* ── 기본값 (DB가 비어 있어도 이대로 보임) ── */
 var DEFAULT_TEXT = {
-  'site-title':'지력사무소 | 후원 보상 안내',
+  'site-title':'한아련&지력사무소',
+  'site-icon':'https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg',
+  'loader-image':'https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg',
+  'trans-prefix':'한아련&',
   'brand-stamp':'吳', 'brand-sub':'JIRYEOK',
   'side-note':'江東 · WU VIRTUAL ARCHIVE\nJIRYEOK OFFICE',
   'nav-main-ko':'메인',        'nav-main-en':'MAIN',
@@ -89,7 +110,7 @@ var DEFAULT_TEXT = {
   'outfit-kicker':'江東 · WU ARCHIVE / COLLECTION 01', 'outfit-title':'의상',
   'hair-kicker':'江東 · WU ARCHIVE / COLLECTION 02',   'hair-title':'헤어',
   'roulette-kicker':'江東 · WU ARCHIVE / EVENT GUIDE', 'roulette-title':'룰렛 확률',
-  'roulette-badge':'SAMPLE', 'roulette-note':'확률은 교체하기 쉬운 임시 값이에요.',
+  'roulette-badge':'SAMPLE', 'roulette-note':'', 'roulette-percol':'5',
   'roulette-mascot':'/bee-mascot.png',
   'pledge-kicker':'CUMULATIVE PROMISE', 'pledge-title':'누적공약', 'pledge-note':'누적으로 다 합니다',
   'pledge-current':'0',
@@ -222,7 +243,7 @@ function esc(v){
   return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function br(v){ return esc(v).replace(/\n/g,'<br>'); }
-function T(k){ var v = S.text[k]; return (v === undefined || v === null || v === '') ? (DEFAULT_TEXT[k] || '') : v; }
+function T(k){ var v = S.text[k]; return (v === undefined || v === null) ? (DEFAULT_TEXT[k] || '') : v; }
 function pad2(n){ return String(n).padStart(2,'0'); }
 var nf = new Intl.NumberFormat('ko-KR');
 
@@ -254,10 +275,10 @@ function collectionHTML(id, items){
 }
 
 function mainHTML(){
-  var half = Math.ceil(S.roulette.length / 2);
-  var cols = [S.roulette.slice(0, half), S.roulette.slice(half)];
+  var perCol = Math.max(1, parseInt(T('roulette-percol'), 10) || 5);
+  var cols = [];
+  for (var ci = 0; ci < S.roulette.length; ci += perCol) cols.push(S.roulette.slice(ci, ci + perCol));
   var colHTML = cols.map(function(col){
-    if (!col.length) return '';
     return '<div class="roulette-column">'+col.map(function(r){
       return '<div class="roulette-row"><span>'+esc(r.label)+'</span><strong>'+esc(r.chance)+'</strong></div>';
     }).join('')+'</div>';
@@ -283,7 +304,7 @@ function mainHTML(){
           '<img class="roulette-mascot" src="'+esc(T('roulette-mascot'))+'" alt="" referrerpolicy="no-referrer">'+
         '</div>'+
         '<div class="roulette-list">'+
-          (S.roulette.length ? '<div class="roulette-columns">'+colHTML+'</div>'
+          (S.roulette.length ? '<div class="roulette-columns" style="grid-template-columns:repeat('+Math.max(1,cols.length)+',minmax(0,1fr))">'+colHTML+'</div>'
                              : '<div class="wu-empty">'+esc(T('empty-roulette'))+'</div>')+
           (T('roulette-note') ? '<small>'+esc(T('roulette-note'))+'</small>' : '')+
         '</div>'+
@@ -429,12 +450,38 @@ function render(){
   if (view === 'main') initCollections();
 }
 
-function selectView(k){
-  if (!BUILD[k]) k = 'main';
+var reduceMotion = false;
+try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+
+function paintCover(avId, stampId, nameId, key){
+  var av = document.getElementById(avId);
+  var src = T('loader-image') || T('site-icon');
+  if (av && src){ av.style.display = ''; av.src = src; }
+  var st = document.getElementById(stampId);
+  if (st){ st.style.display = src ? 'none' : 'grid'; st.textContent = T('brand-stamp'); }
+  var nm = document.getElementById(nameId);
+  if (nm) nm.textContent = T('trans-prefix') + T('nav-' + key + '-ko');
+}
+
+function applyView(k){
   view = k;
   try { history.replaceState(null, '', k === 'main' ? '#' : '#' + k); } catch(e){}
   render();
-  window.scrollTo({ top:0, behavior:'smooth' });
+  window.scrollTo({ top:0, behavior:'auto' });
+}
+
+var switching = false;
+function selectView(k){
+  if (!BUILD[k]) k = 'main';
+  if (k === view || switching) { if (k !== view) applyView(k); return; }
+  if (reduceMotion){ applyView(k); return; }
+
+  var cover = document.getElementById('wutrans');
+  paintCover('transAv', 'transStamp', 'transName', k);
+  switching = true;
+  cover.classList.add('on');
+  setTimeout(function(){ applyView(k); }, 250);
+  setTimeout(function(){ cover.classList.remove('on'); switching = false; }, 540);
 }
 
 /* ── 컬렉션 무한 루프 스크롤 ── */
@@ -444,10 +491,39 @@ function segWidth(row){
   var gap = parseFloat(getComputedStyle(row).columnGap) || 0;
   return (card.getBoundingClientRect().width + gap) * (Number(row.dataset.len) || 1);
 }
+/* 무한 회전이 양쪽 다 되려면 "전체 폭 - 보이는 폭 >= 한 세트 폭 x 2" 여야 한다.
+   항목이 적으면 한 세트가 화면보다 좁아서 오른쪽 래핑 기준에 못 닿고 끝에서 멈춘다.
+   → 화면 폭을 보고 필요한 만큼 세트를 더 복제해 둔다. */
+function ensureCopies(row){
+  var len = Number(row.dataset.len) || 1;
+  var w = 0;
+  for (var pass = 0; pass < 4; pass++){
+    w = segWidth(row);
+    if (!w) return 0;
+    var need = Math.ceil(row.clientWidth / w) + 2;
+    var have = Math.round(row.children.length / len);
+    if (need <= have) break;
+    var base = Array.prototype.slice.call(row.children, 0, len);
+    for (var c = have; c < need; c++){
+      base.forEach(function(node){
+        var clone = node.cloneNode(true);
+        clone.setAttribute('aria-hidden', 'true');
+        var img = clone.querySelector('img');
+        if (img) img.alt = '';
+        row.appendChild(clone);
+      });
+    }
+  }
+  return w;
+}
+
 function initCollections(){
   document.querySelectorAll('.collection-row').forEach(function(row){
     if (row.dataset.loop !== '1') return;
-    requestAnimationFrame(function(){ row.scrollLeft = segWidth(row); });
+    requestAnimationFrame(function(){
+      var w = ensureCopies(row);
+      if (w) row.scrollLeft = w;
+    });
     var t = null;
     row.addEventListener('scroll', function(){
       clearTimeout(t);
@@ -460,6 +536,19 @@ function initCollections(){
     }, { passive:true });
   });
 }
+
+/* 창 크기가 바뀌면 필요한 세트 수도 달라진다 */
+var _rzT = null;
+window.addEventListener('resize', function(){
+  clearTimeout(_rzT);
+  _rzT = setTimeout(function(){
+    document.querySelectorAll('.collection-row').forEach(function(row){
+      if (row.dataset.loop !== '1') return;
+      var w = ensureCopies(row);
+      if (w && row.scrollLeft < w) row.scrollLeft = w;
+    });
+  }, 200);
+});
 
 /* ── 좌우 화살표 ── */
 document.addEventListener('click', function(e){
@@ -526,8 +615,9 @@ async function load(){
 
     var p = await fetchProfile();
     if (p && typeof p === 'object'){
+      /* '' 도 그대로 반영해야 admin에서 칸을 비웠을 때 실제로 숨겨진다 */
       Object.keys(DEFAULT_TEXT).forEach(function(k){
-        if (p[k] !== undefined && p[k] !== null && p[k] !== '') S.text[k] = p[k];
+        if (p[k] !== undefined && p[k] !== null) S.text[k] = p[k];
       });
       paintTheme(p);
     }
@@ -575,10 +665,11 @@ function applyStrings(){
   if (og) og.setAttribute('content', T('site-title'));
   var ogd = document.querySelector('meta[property="og:description"]');
   if (ogd) ogd.setAttribute('content', T('site-desc'));
+  var ic = document.getElementById('siteIcon');
+  if (ic && T('site-icon')) ic.setAttribute('href', T('site-icon'));
   document.getElementById('askNick').placeholder = T('ask-nick-ph');
   document.getElementById('askMsg').placeholder  = T('ask-msg-ph');
-  var ls = document.getElementById('loadStamp');
-  if (ls) ls.textContent = T('brand-stamp');
+  paintCover('loadAv', 'loadStamp', 'loadName', view);
   document.documentElement.style.setProperty('--rec-glyph', '"' + String(T('rec-glyph')).replace(/"/g,'') + '"');
 }
 
@@ -588,12 +679,13 @@ function applyStrings(){
     var hash = (location.hash || '').slice(1);
     if (BUILD[hash]) view = hash;
   } catch(e){}
+  paintCover('loadAv', 'loadStamp', 'loadName', view);
   render();
   await load();
   document.getElementById('sideNote').innerHTML = br(T('side-note'));
   document.querySelectorAll('[data-hook]').forEach(function(el){
     var v = S.text[el.dataset.hook];
-    if (v !== undefined && v !== null && v !== '') el.innerHTML = br(v);
+    if (v !== undefined && v !== null) el.innerHTML = br(v);
   });
   applyStrings();
   render();

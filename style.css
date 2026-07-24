@@ -1278,13 +1278,19 @@ button {
     grid-template-columns: 1fr;
   }
 
+  .roulette-columns {
+    grid-template-columns: 1fr !important;   /* 좁은 화면에선 한 줄로 */
+  }
+
   .roulette-column {
-    padding-right: 12px;
+    padding-right: 0;
   }
 
   .roulette-column + .roulette-column {
-    padding-right: 0;
-    padding-left: 12px;
+    margin-top: 4px;
+    padding-left: 0;
+    border-top: 1px dashed var(--line);
+    border-left: 0;
   }
 
   .roulette-row {
@@ -1582,33 +1588,100 @@ body.dark .nav-dark span{ transform:translateY(22px); }
 /* ── 룰렛 마퀴 장식 ── */
 .roulette-list small{ display:block; }
 
-/* ── 로딩 커버 ── */
-#wuload{
+/* ── 로딩 · 화면 전환 커버 ── */
+#wuload,
+#wutrans{
   position:fixed;
-  z-index:90;
   inset:0;
   display:grid;
   place-items:center;
-  background:linear-gradient(160deg,var(--wu-red-lite),var(--wu-red) 52%,var(--wu-red-deep));
-  transition:opacity 420ms ease;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,236,198,.045) 0 1px, transparent 1px 5px),
+    linear-gradient(160deg,var(--wu-red-lite),var(--wu-red) 52%,var(--wu-red-deep));
 }
+#wuload{ z-index:90; transition:opacity 420ms ease; }
 #wuload.off{ opacity:0; pointer-events:none; }
-#wuload .stamp{
+
+#wutrans{
+  z-index:88;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 190ms ease;
+}
+#wutrans.on{ opacity:1; pointer-events:auto; }
+
+/* 커버 안쪽 — 프사 · 금박 선 · 이름 */
+.wt-box{
   display:grid;
-  width:74px;
-  height:74px;
+  justify-items:center;
+  gap:15px;
+  padding:0 20px;
+  text-align:center;
+}
+#wutrans .wt-box{
+  opacity:0;
+  transform:translateY(9px) scale(.95);
+  transition:transform 340ms cubic-bezier(.2,.8,.3,1), opacity 240ms ease;
+}
+#wutrans.on .wt-box{ opacity:1; transform:none; }
+
+.wt-av{
+  width:112px;
+  height:112px;
+  object-fit:cover;
+  border:3px solid var(--gold);
+  border-radius:4px;
+  background:#f1dfbe;
+  box-shadow:
+    inset 0 0 0 3px rgba(122,31,27,.28),
+    7px 7px 0 rgba(19,12,9,.5);
+  animation:wuload-beat 1.6s ease-in-out infinite;
+}
+.wt-stamp{
+  display:none;
+  width:96px;
+  height:96px;
   place-items:center;
   border:3px solid var(--gold);
   border-radius:4px;
   background:#f1dfbe;
   color:var(--wu-red);
-  font:800 34px/1 "Noto Serif KR",Georgia,serif;
+  font:800 40px/1 "Noto Serif KR",Georgia,serif;
   box-shadow:inset 0 0 0 3px rgba(122,31,27,.28),6px 6px 0 rgba(19,12,9,.55);
-  animation:wuload-beat 1.5s ease-in-out infinite;
+  animation:wuload-beat 1.6s ease-in-out infinite;
 }
+.wt-line{
+  width:0;
+  height:2px;
+  background:var(--gold);
+  box-shadow:0 0 8px rgba(179,134,54,.9);
+  animation:wt-line 620ms cubic-bezier(.2,.8,.3,1) forwards;
+}
+#wutrans .wt-line{ animation:none; width:0; }
+#wutrans.on .wt-line{ animation:wt-line 520ms cubic-bezier(.2,.8,.3,1) forwards; }
+.wt-name{
+  color:#f8e9c9;
+  font-family:"Noto Serif KR","Batang",Georgia,serif;
+  font-size:19px;
+  font-weight:700;
+  letter-spacing:-.02em;
+  text-shadow:0 2px 0 rgba(45,12,8,.45);
+  word-break:keep-all;
+}
+@keyframes wt-line{ from{ width:0; } to{ width:132px; } }
 @keyframes wuload-beat{
   0%,100%{ transform:scale(1) rotate(-2deg); }
-  50%{ transform:scale(1.08) rotate(2deg); }
+  50%{ transform:scale(1.05) rotate(2deg); }
+}
+@media (max-width:560px){
+  .wt-av{ width:92px; height:92px; }
+  .wt-stamp{ width:80px; height:80px; font-size:34px; }
+  .wt-name{ font-size:16px; }
+}
+@media (prefers-reduced-motion: reduce){
+  #wutrans{ display:none; }
+  .wt-av,.wt-stamp{ animation:none; }
+  .wt-line{ width:132px; animation:none; }
 }
 
 /* ── 빈 목록 안내 ── */

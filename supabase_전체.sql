@@ -147,7 +147,10 @@ INSERT INTO profile (id, data) VALUES (1, '{}'::jsonb) ON CONFLICT (id) DO NOTHI
 
 -- 사이트 문구 기본값 (이미 저장된 키는 그대로 두고, 없는 키만 채움)
 UPDATE profile SET data = '{
-  "site-title":"지력사무소 | 후원 보상 안내",
+  "site-title":"한아련&지력사무소",
+  "site-icon":"https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg",
+  "loader-image":"https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg",
+  "trans-prefix":"한아련&",
   "brand-stamp":"吳",
   "brand-sub":"JIRYEOK",
   "side-note":"江東 · WU VIRTUAL ARCHIVE\nJIRYEOK OFFICE",
@@ -160,7 +163,7 @@ UPDATE profile SET data = '{
   "outfit-kicker":"江東 · WU ARCHIVE / COLLECTION 01","outfit-title":"의상",
   "hair-kicker":"江東 · WU ARCHIVE / COLLECTION 02","hair-title":"헤어",
   "roulette-kicker":"江東 · WU ARCHIVE / EVENT GUIDE","roulette-title":"룰렛 확률",
-  "roulette-badge":"SAMPLE","roulette-note":"확률은 교체하기 쉬운 임시 값이에요.",
+  "roulette-badge":"SAMPLE","roulette-note":"","roulette-percol":"5",
   "roulette-mascot":"/bee-mascot.png",
   "pledge-kicker":"CUMULATIVE PROMISE","pledge-title":"누적공약","pledge-note":"누적으로 다 합니다",
   "pledge-current":"0",
@@ -199,6 +202,13 @@ UPDATE profile SET data = '{
   "theme-signal":"#58d9d7","theme-ink":"#211b15","theme-paper":"#f7f0df"
 }'::jsonb || data
 WHERE id = 1;
+
+
+-- (이미 예전 버전 SQL을 돌렸던 경우) 룰렛 각주에 남아 있는 샘플 문구만 비움 — 직접 쓴 글은 건드리지 않음
+UPDATE profile
+   SET data = jsonb_set(data, '{roulette-note}', '""'::jsonb)
+ WHERE id = 1
+   AND data->>'roulette-note' = '확률은 교체하기 쉬운 임시 값이에요.';
 
 
 -- 컬렉션 (의상 · 헤어)
