@@ -1425,9 +1425,11 @@ button {
   background:#f2e2c5;
   font-size:11px;
   line-height:1;
-  transition:transform 220ms ease;
+  /* 버튼이 그리드에 의해 늘어나도 아래 끝까지 내려가도록
+     이동거리를 "버튼 높이 - 노브 높이 - 위아래 여백"으로 계산 */
+  transition:top 220ms ease;
 }
-body.dark .nav-dark span{ transform:translateY(22px); }
+body.dark .nav-dark span{ top:calc(100% - 22px - 3px); }
 .nav-dark:hover{ border-color:#e2bc73; }
 
 /* ── 문의 모달 ── */
@@ -1752,15 +1754,45 @@ body.dark .records-empty::before{ border-color:var(--accent); color:var(--accent
 body.dark .side-nav button.active{ color:#231812; background:#e8d5ae; }
 body.dark .look-card figcaption span{ color:#ffb59f; }
 
+/* =====================================================================
+   ▓ 야간 등화관제 — 글자 대비 보정
+   어두운 배경에서 안 보이던 곳을 밝은 색으로 (목표 대비 4.5:1 이상)
+   ===================================================================== */
+
+/* 누적보상 구간 제목 — 배경과 거의 같은 색이라 안 보였음 (대비 1.04) */
+body.dark .product-tier h2{ color:#f0e0c0; }
+
+/* 섹션 상단 작은 영문 라벨 (CUMULATIVE REWARD 등) — 어두운 붉은색이라 묻힘 */
+body.dark .reward-header > p,
+body.dark .section-title p{ color:#ef9a86; }
+
+/* 누적공약 진행바 */
+body.dark .pledge-progress-top > span{ color:#e7d6b8; }
+body.dark .pledge-progress-top > strong,
+body.dark .pledge-progress-bottom strong{ color:#ef9a86; }
+body.dark .pledge-progress-bottom{ color:#c0ae94; }
+
+/* 공약 번호 · 상태 배지 */
+body.dark .pledge-index,
+body.dark .reward-index{ color:#b3a58e; }
+body.dark .pledge-row.current .pledge-status{
+  border-color:#e9c877; background:rgba(237,207,126,.2); color:#f2d492;
+}
+
+/* 보상기록 · 진행중 배지 */
+body.dark .rec-chip.ing,
+body.dark .recsum.ing{ background:rgba(237,207,126,.2); color:#f2d492; }
+
+/* TOP5 번호칸 — 밝은 주황 위 밝은 글자라 흐릿했음 */
+body.dark .top-list li > span{ color:#2a1712; }
+
 /* ── 인쇄/좁은 화면 보정 ── */
 @media (max-width:800px){
   .nav-tools{ grid-template-columns:1fr 34px; margin-top:10px; padding-top:10px; }
   .nav-ask{ min-height:36px; }
   .nav-dark{ height:42px; }
   .nav-dark span{ height:18px; }
-  body.dark .nav-dark span,
-  .nav-dark span{ transition:transform 220ms ease; }
-  body.dark .nav-dark span{ transform:translateY(18px); }
+  body.dark .nav-dark span{ top:calc(100% - 18px - 3px); }
   .records-row{ grid-template-columns:1fr 1.5fr 74px; }
   .records-row > span{ padding:10px 9px; font-size:11px; }
   .rec-who{ gap:7px; }
