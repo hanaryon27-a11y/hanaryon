@@ -1,4 +1,4 @@
-# 한아련&지력사무소 · 후원 보상 안내 — 사용 설명서
+# 한아련 삼국지 API 공약 — 사용 설명서
 
 바닐라 HTML/CSS/JS + Supabase + Cloudflare Pages 구성.
 **빌드 도구 없이 파일만 올리면 바로 뜹니다.**
@@ -21,7 +21,7 @@ wu-river-background.webp  배경
 section-header-landscape.webp  각 화면 상단 산수화
 bee-mascot.png          룰렛 가운데 마스코트
 arrow-third-left/right.png  좌우 화살표
-favicon.svg  og.jpg     파비콘 · 공유 썸네일
+favicon.svg  og-v2.jpg  파비콘 · 링크 공유 썸네일
 ```
 
 ---
@@ -128,7 +128,26 @@ Connect to Git → repo 선택 → **Framework preset: None** (빌드 명령·�
 
 ---
 
-## 7. 백업 · 갈아엎기
+## 7. 링크 미리보기(카톡·X 썸네일) 바꾸기
+
+카톡·X에 링크를 붙였을 때 뜨는 제목/설명/이미지는 **관리자가 아니라 `index.html` 상단의 메타 태그**를 읽습니다.
+크롤러는 JS를 안 돌리기 때문에, 관리자에서 제목을 바꿔도 **미리보기는 안 바뀝니다.**
+
+```html
+<meta property="og:title" content="한아련 삼국지 API 공약">
+<meta property="og:description" content="삼국지 API 공약에 관한 모든 것을 한눈에 확인하세요.">
+<meta property="og:image" content="https://hanaryonpromise.pages.dev/og-v2.jpg">
+```
+
+- 이미지를 바꿀 땐 **파일명도 같이 바꾸세요** (`og-v2.jpg` → `og-v3.jpg`).
+  같은 이름이면 카톡이 예전 이미지를 캐시해서 계속 옛것이 뜹니다.
+- 권장 크기 **1200 × 630**, 1MB 이하.
+- 그래도 옛 미리보기가 뜨면 카카오 디버거에서 캐시 초기화:
+  `https://developers.kakao.com/tool/debugger/sharing`
+
+---
+
+## 8. 백업 · 갈아엎기
 
 - 내용은 전부 Supabase에 있습니다. 사이트 파일을 다시 올려도 내용은 그대로예요.
 - 전부 초기화하려면 SQL Editor에서:

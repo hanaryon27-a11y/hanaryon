@@ -150,7 +150,7 @@ INSERT INTO profile (id, data) VALUES (1, '{}'::jsonb) ON CONFLICT (id) DO NOTHI
 
 -- 사이트 문구 기본값 (이미 저장된 키는 그대로 두고, 없는 키만 채움)
 UPDATE profile SET data = '{
-  "site-title":"한아련&지력사무소",
+  "site-title":"한아련 삼국지 API 공약",
   "site-icon":"https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg",
   "loader-image":"https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg",
   "trans-prefix":"한아련&",
@@ -178,7 +178,7 @@ UPDATE profile SET data = '{
   "rec-empty-desc":"전달이 시작되면 이곳에서 한눈에 확인할 수 있어요.",
   "ask-kicker":"CONTACT · 문의","ask-title":"사무소에 남기기",
   "ask-desc":"보상 관련 문의나 하고 싶은 말을 남겨주세요. 확인 후 방송에서 안내드려요.",
-  "site-desc":"의상과 헤어 컬렉션, 누적 공약과 후원 보상을 한눈에 확인하세요.",
+  "site-desc":"삼국지 API 공약에 관한 모든 것을 한눈에 확인하세요.",
   "ask-btn":"✉ 문의하기",
   "ask-nick-label":"닉네임","ask-nick-ph":"닉네임 (선택)",
   "ask-msg-label":"내용","ask-msg-ph":"내용을 적어주세요",
@@ -205,6 +205,16 @@ UPDATE profile SET data = '{
   "theme-signal":"#58d9d7","theme-ink":"#211b15","theme-paper":"#f7f0df"
 }'::jsonb || data
 WHERE id = 1;
+
+
+-- (이미 예전 버전 SQL을 돌렸던 경우) 제목·설명을 새 문구로 — 예전 기본값일 때만 바꿈
+UPDATE profile
+   SET data = jsonb_set(data, '{site-title}', '"한아련 삼국지 API 공약"'::jsonb)
+ WHERE id = 1 AND data->>'site-title' = '한아련&지력사무소';
+
+UPDATE profile
+   SET data = jsonb_set(data, '{site-desc}', '"삼국지 API 공약에 관한 모든 것을 한눈에 확인하세요."'::jsonb)
+ WHERE id = 1 AND data->>'site-desc' = '의상과 헤어 컬렉션, 누적 공약과 후원 보상을 한눈에 확인하세요.';
 
 
 -- (이미 예전 버전 SQL을 돌렸던 경우) 룰렛 각주에 남아 있는 샘플 문구만 비움 — 직접 쓴 글은 건드리지 않음
