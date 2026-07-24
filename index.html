@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지력사무소 | 후원 보상 안내</title>
+<meta name="description" content="의상과 헤어 컬렉션, 누적 공약과 후원 보상을 한눈에 확인하세요.">
+<meta property="og:title" content="지력사무소 | 후원 보상 안내">
+<meta property="og:description" content="의상과 헤어 컬렉션, 누적 공약과 후원 보상을 한눈에 확인하세요.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Serif+KR:wght@500;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<script>try{if(localStorage.getItem('theme')==='dark')document.body.classList.add('dark');}catch(e){}</script>
+
+<div id="wuload"><div class="stamp" id="loadStamp">吳</div></div>
+<div id="fx" aria-hidden="true"></div>
+
+<main class="site-shell">
+  <div class="page-frame">
+
+    <aside class="side-nav" aria-label="페이지 목차">
+      <div class="nav-stamp" aria-hidden="true">
+        <span data-hook="brand-stamp">吳</span>
+        <small data-hook="brand-sub">JIRYEOK</small>
+      </div>
+      <nav id="navList"></nav>
+      <div class="nav-tools">
+        <button class="nav-ask" type="button" id="askOpen" data-hook="ask-btn">✉ 문의하기</button>
+        <button class="nav-dark" type="button" id="darkBtn" aria-label="야간 등화관제 전환"><span id="darkKnob">☀</span></button>
+      </div>
+      <p class="side-note" id="sideNote">江東 · WU VIRTUAL ARCHIVE<br>JIRYEOK OFFICE</p>
+    </aside>
+
+    <div class="content-panel content-panel-main" id="panel" role="region"></div>
+
+  </div>
+</main>
+
+<!-- ── 문의 모달 ── -->
+<div class="ask-back" id="askBack">
+  <div class="ask-box" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+    <p class="kicker" data-hook="ask-kicker">CONTACT · 문의</p>
+    <h3 id="askTitle" data-hook="ask-title">사무소에 남기기</h3>
+    <p style="margin:-8px 0 16px;color:var(--muted);font-size:12px;line-height:1.7" data-hook="ask-desc">보상 관련 문의나 하고 싶은 말을 남겨주세요. 확인 후 방송에서 안내드려요.</p>
+    <div class="ask-field">
+      <label for="askNick" data-hook="ask-nick-label">닉네임</label>
+      <input id="askNick" type="text" maxlength="40" placeholder="닉네임 (선택)">
+    </div>
+    <div class="ask-field">
+      <label for="askMsg" data-hook="ask-msg-label">내용</label>
+      <textarea id="askMsg" maxlength="1000" placeholder="내용을 적어주세요"></textarea>
+    </div>
+    <div class="ask-actions">
+      <button class="wu-btn" type="button" id="askClose" data-hook="ask-close">닫기</button>
+      <button class="wu-btn primary" type="button" id="askSend" data-hook="ask-send">보내기</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/supabase.js"></script>
+<script>
+/* =============================================================
+   지력사무소 후원보상 안내 — 화면 조립기
+   ============================================================= */
+(function(){
+'use strict';
+
+var NAV_ORDER = ['main','pledge','personal','cumulative','top5','records'];
+
+/* ── 기본값 (DB가 비어 있어도 이대로 보임) ── */
+var DEFAULT_TEXT = {
+  'site-title':'지력사무소 | 후원 보상 안내',
+  'brand-stamp':'吳', 'brand-sub':'JIRYEOK',
+  'side-note':'江東 · WU VIRTUAL ARCHIVE\nJIRYEOK OFFICE',
+  'nav-main-ko':'메인',        'nav-main-en':'MAIN',
+  'nav-pledge-ko':'누적공약',   'nav-pledge-en':'PROMISE',
+  'nav-personal-ko':'개인보상', 'nav-personal-en':'PERSONAL',
+  'nav-cumulative-ko':'누적보상','nav-cumulative-en':'TOTAL',
+  'nav-top5-ko':'TOP5 보상',    'nav-top5-en':'TOP 5',
+  'nav-records-ko':'보상기록',  'nav-records-en':'RECORDS',
+  'outfit-kicker':'江東 · WU ARCHIVE / COLLECTION 01', 'outfit-title':'의상',
+  'hair-kicker':'江東 · WU ARCHIVE / COLLECTION 02',   'hair-title':'헤어',
+  'roulette-kicker':'江東 · WU ARCHIVE / EVENT GUIDE', 'roulette-title':'룰렛 확률',
+  'roulette-badge':'SAMPLE', 'roulette-note':'확률은 교체하기 쉬운 임시 값이에요.',
+  'roulette-mascot':'/bee-mascot.png',
+  'pledge-kicker':'CUMULATIVE PROMISE', 'pledge-title':'누적공약', 'pledge-note':'누적으로 다 합니다',
+  'pledge-current':'0',
+  'personal-kicker':'PERSONAL REWARD', 'personal-title':'개인보상', 'personal-note':'해당 개수로 쏴주시거나 따로 알려주세요',
+  'cumul-kicker':'CUMULATIVE REWARD', 'cumul-title':'누적보상', 'cumul-note':'룰렛 + 개인보상 모두 포함 · 1000개당 카드팩',
+  'top-kicker':'SPECIAL REWARD', 'top-title':'TOP5 보상', 'top-note':'1개 골라주세요',
+  'rec-kicker':'REWARD RECORDS', 'rec-title':'보상기록', 'rec-note':'전달된 보상과 진행 상태를 정리하는 공간',
+  'rec-empty-title':'아직 등록된 보상 기록이 없어요.',
+  'rec-empty-desc':'전달이 시작되면 이곳에서 한눈에 확인할 수 있어요.',
+  'ask-kicker':'CONTACT · 문의', 'ask-title':'사무소에 남기기',
+  'ask-desc':'보상 관련 문의나 하고 싶은 말을 남겨주세요. 확인 후 방송에서 안내드려요.',
+
+  'site-desc':'의상과 헤어 컬렉션, 누적 공약과 후원 보상을 한눈에 확인하세요.',
+  'ask-btn':'✉ 문의하기',
+  'ask-nick-label':'닉네임', 'ask-nick-ph':'닉네임 (선택)',
+  'ask-msg-label':'내용',   'ask-msg-ph':'내용을 적어주세요',
+  'ask-close':'닫기', 'ask-send':'보내기',
+  'ask-need':'내용을 적어주세요.',
+  'ask-done':'문의가 전달됐어요. 고마워요!',
+  'ask-fail':'전송에 실패했어요. 잠시 뒤 다시 시도해 주세요.',
+
+  'look-prefix':'LOOK',
+  'empty-collection':'아직 등록된 항목이 없어요.',
+  'empty-roulette':'확률표가 아직 비어 있어요.',
+
+  'pledge-cur-label':'현재 누적', 'pledge-unit':'개',
+  'pledge-done-label':'달성 보상',
+  'pledge-next-prefix':'다음', 'pledge-next-suffix':'개 남음',
+  'pledge-all-done':'모든 누적공약 달성!',
+  'pledge-st-done':'달성', 'pledge-st-next':'다음', 'pledge-st-wait':'대기',
+  'empty-pledge':'등록된 공약이 없어요.',
+
+  'empty-personal':'등록된 개인보상이 없어요.',
+  'empty-tier':'이 구간에 등록된 보상이 없어요.',
+  'empty-cumul':'등록된 누적보상 구간이 없어요.',
+  'empty-top':'등록된 TOP5 보상이 없어요.',
+
+  'rec-th-nick':'닉네임', 'rec-th-reward':'보상', 'rec-th-status':'상태',
+  'rec-glyph':'錄'
+};
+
+var DEFAULT_OUTFITS = [
+  {label:'화이트 드레스', image_url:'/characters/look-01.webp'},
+  {label:'빈티지 룩',     image_url:'/characters/look-02.webp'},
+  {label:'스타리 나이트', image_url:'/characters/look-03.webp'},
+  {label:'클래식 코르셋', image_url:'/characters/look-04.webp'}
+];
+var DEFAULT_HAIR = [
+  {label:'웨이브 롱',   image_url:'/characters/look-05.webp'},
+  {label:'트윈테일',   image_url:'/characters/look-06.webp'},
+  {label:'레이어드 롱', image_url:'/characters/look-07.webp'},
+  {label:'보브 컷',    image_url:'/characters/look-08.webp'}
+];
+var DEFAULT_PLEDGES = [
+  {amount_label:'5만개',  value:50000,  reward:'모션캡쳐 방송'},
+  {amount_label:'7만개',  value:70000,  reward:'지창걸스 커버곡 업로드'},
+  {amount_label:'10만개', value:100000, reward:'움직이는 OGQ (이모티콘) 아련티콘 + 호빵티콘'},
+  {amount_label:'12만개', value:120000, reward:'지력 72시간 (병라목련)'},
+  {amount_label:'15만개', value:150000, reward:'오리지널 아바타'},
+  {amount_label:'20만개', value:200000, reward:'전기충격촉각슈트 치킨먹기 (w. 라무)'},
+  {amount_label:'25만개', value:250000, reward:'스카이다이빙'},
+  {amount_label:'30만개', value:300000, reward:'VRC 풀트 메이드카페'},
+  {amount_label:'44만개', value:440000, reward:'사란니 빼기 (1개)'},
+  {amount_label:'50만개', value:500000, reward:'지력카페 일일 알바생'},
+  {amount_label:'71만개', value:710000, reward:'장가계 하늘사다리 브이로그'},
+  {amount_label:'150만개',value:1500000,reward:'지력사무소 콘서트'}
+];
+var DEFAULT_PERSONAL = [
+  {amount_label:'500개',    reward:'복붙방셀 + 역팬 10개'},
+  {amount_label:'1440개',   reward:'단컷방셀 2장 + 역팬 20개'},
+  {amount_label:'2340개',   reward:'단컷방셀 2장 + 움짤방셀 + 역팬 40개'},
+  {amount_label:'4040개',   reward:'단컷방셀 풀세트 (모든 의상) + 역팬 140개'},
+  {amount_label:'5240개',   reward:'단컷방셀 2장 + 움짤방셀 1장 + 네컷방셀 + 역팬 234개'},
+  {amount_label:'7777개',   reward:'방셀 풀세트 (단컷 풀세트 + 움짤방셀 + 네컷방셀) + 역팬 500개'},
+  {amount_label:'12440개',  reward:'방셀 풀세트 (단컷 풀세트 + 움짤방셀 + 네컷방셀) + 배너 풀세트 + 역팬 1440개'},
+  {amount_label:'1,000,000개', reward:'약혼하기 (본인이 원하면 파혼 가능)'}
+];
+var DEFAULT_TIERS = [
+  {amount_label:'2000개 이상', items:[
+    {label:'지력 탁상시계', image_url:'/rewards/clock.webp'}]},
+  {amount_label:'3000개 이상', items:[
+    {label:'자체제작 후드집업', image_url:'/rewards/hoodie.webp'},
+    {label:'지력 탁상시계',     image_url:'/rewards/clock.webp'}]},
+  {amount_label:'5000개 이상', items:[
+    {label:'자체제작 후드집업',   image_url:'/rewards/hoodie.webp'},
+    {label:'직접 조향한 디퓨저', image_url:'/rewards/diffuser.webp'},
+    {label:'지력 탁상시계',      image_url:'/rewards/clock.webp'},
+    {label:'지력카페 입장권',    image_url:'/rewards/cafe-ticket.webp'}]},
+  {amount_label:'20000개 이상', items:[
+    {label:'자체제작 후드집업',   image_url:'/rewards/hoodie.webp'},
+    {label:'직접 조향한 디퓨저', image_url:'/rewards/diffuser.webp'},
+    {label:'커스텀 마우스',      image_url:'/rewards/mouse.webp'},
+    {label:'지력 탁상시계',      image_url:'/rewards/clock.webp'},
+    {label:'지력카페 입장권',    image_url:'/rewards/cafe-ticket.webp'}]}
+];
+var DEFAULT_TOP = [
+  {label:'수제 목도리 (11월 내)', image_url:'/rewards/scarf.webp'},
+  {label:'종겜 켠왕권 (지피티룰 제한)', image_url:''},
+  {label:'노래방셀 2곡 (스튜디오 녹음 + 방송국)', image_url:''},
+  {label:'100시간 노방종', image_url:''},
+  {label:'수제 가죽지갑', image_url:'/rewards/wallet.webp'}
+];
+var DEFAULT_ROULETTE = [
+  {label:'카드팩',     chance:'40%'},
+  {label:'역팬 10개',  chance:'25%'},
+  {label:'복붙 방셀',  chance:'18%'},
+  {label:'단컷 방셀',  chance:'12%'},
+  {label:'한 번 더',   chance:'5%'}
+];
+
+/* ── 상태 ── */
+var S = {
+  text: Object.assign({}, DEFAULT_TEXT),
+  outfits: DEFAULT_OUTFITS.slice(),
+  hair: DEFAULT_HAIR.slice(),
+  pledges: DEFAULT_PLEDGES.slice(),
+  personal: DEFAULT_PERSONAL.slice(),
+  tiers: DEFAULT_TIERS.slice(),
+  top: DEFAULT_TOP.slice(),
+  roulette: DEFAULT_ROULETTE.slice(),
+  records: []
+};
+var view = 'main';
+
+/* ── 유틸 ── */
+function esc(v){
+  if (v === null || v === undefined) return '';
+  if (Array.isArray(v)) v = v.join(', ');
+  else if (typeof v === 'object') { try { v = JSON.stringify(v); } catch(e){ v = ''; } }
+  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function br(v){ return esc(v).replace(/\n/g,'<br>'); }
+function T(k){ var v = S.text[k]; return (v === undefined || v === null || v === '') ? (DEFAULT_TEXT[k] || '') : v; }
+function pad2(n){ return String(n).padStart(2,'0'); }
+var nf = new Intl.NumberFormat('ko-KR');
+
+/* ── 사이드 목차 ── */
+function renderNav(){
+  var n = document.getElementById('navList');
+  n.innerHTML = NAV_ORDER.map(function(k){
+    return '<button type="button" id="nav-'+k+'" data-key="'+k+'"'+(view===k?' class="active" aria-current="page"':'')+'>'+
+           '<small>'+esc(T('nav-'+k+'-en'))+'</small><span>'+esc(T('nav-'+k+'-ko'))+'</span></button>';
+  }).join('');
+}
+
+/* ── 메인 ── */
+function collectionHTML(id, items){
+  if (!items.length) return '<div class="wu-empty">'+esc(T('empty-collection'))+'</div>';
+  var loop = items.length > 1 ? items.concat(items, items) : items;
+  var cards = loop.map(function(it, i){
+    var idx = i % items.length;
+    var cycle = items.length > 1 ? Math.floor(i / items.length) : 1;
+    return '<figure class="look-card"'+(cycle!==1?' aria-hidden="true"':'')+'>'+
+      '<img src="'+esc(it.image_url)+'" alt="'+(cycle===1?esc(it.label):'')+'" loading="lazy" referrerpolicy="no-referrer">'+
+      '<figcaption><span>'+esc(T('look-prefix'))+' '+pad2(idx+1)+'</span>'+esc(it.label)+'</figcaption></figure>';
+  }).join('');
+  return '<div class="collection-wrap">'+
+    '<div class="collection-row" id="'+id+'" data-loop="'+(items.length>1?1:0)+'" data-len="'+items.length+'">'+cards+'</div>'+
+    '<button class="scroll-prev" type="button" data-scroll="'+id+'" data-dir="-1" aria-label="이전 이미지 보기"><span aria-hidden="true"></span></button>'+
+    '<button class="scroll-next" type="button" data-scroll="'+id+'" data-dir="1" aria-label="다음 이미지 보기"><span aria-hidden="true"></span></button>'+
+    '</div>';
+}
+
+function mainHTML(){
+  var half = Math.ceil(S.roulette.length / 2);
+  var cols = [S.roulette.slice(0, half), S.roulette.slice(half)];
+  var colHTML = cols.map(function(col){
+    if (!col.length) return '';
+    return '<div class="roulette-column">'+col.map(function(r){
+      return '<div class="roulette-row"><span>'+esc(r.label)+'</span><strong>'+esc(r.chance)+'</strong></div>';
+    }).join('')+'</div>';
+  }).join('');
+
+  return '<div class="main-view">'+
+    '<section class="collection-section" aria-labelledby="outfit-title">'+
+      '<div class="section-title"><p>'+esc(T('outfit-kicker'))+'</p>'+
+      '<h2 id="outfit-title">'+esc(T('outfit-title'))+'</h2></div>'+
+      collectionHTML('outfit-row', S.outfits)+
+    '</section>'+
+    '<section class="collection-section" aria-labelledby="hair-title">'+
+      '<div class="section-title"><p>'+esc(T('hair-kicker'))+'</p>'+
+      '<h2 id="hair-title">'+esc(T('hair-title'))+'</h2></div>'+
+      collectionHTML('hair-row', S.hair)+
+    '</section>'+
+    '<section class="roulette-section" aria-labelledby="roulette-title">'+
+      '<div class="section-title roulette-heading"><div><p>'+esc(T('roulette-kicker'))+'</p>'+
+      '<h2 id="roulette-title">'+esc(T('roulette-title'))+'</h2></div>'+
+      (T('roulette-badge') ? '<span class="sample-badge">'+esc(T('roulette-badge'))+'</span>' : '')+'</div>'+
+      '<div class="roulette-card">'+
+        '<div class="roulette-wheel" aria-hidden="true">'+
+          '<img class="roulette-mascot" src="'+esc(T('roulette-mascot'))+'" alt="" referrerpolicy="no-referrer">'+
+        '</div>'+
+        '<div class="roulette-list">'+
+          (S.roulette.length ? '<div class="roulette-columns">'+colHTML+'</div>'
+                             : '<div class="wu-empty">'+esc(T('empty-roulette'))+'</div>')+
+          (T('roulette-note') ? '<small>'+esc(T('roulette-note'))+'</small>' : '')+
+        '</div>'+
+      '</div>'+
+    '</section>'+
+  '</div>';
+}
+
+/* ── 누적공약 ── */
+function pledgeHTML(){
+  var list = S.pledges;
+  var max = list.length ? Number(list[list.length-1].value || 0) : 0;
+  var cur = Math.max(0, Math.min(Number(String(T('pledge-current')).replace(/[^0-9.]/g,'')) || 0, max));
+  var pct = max ? Math.min(100, cur / max * 100) : 0;
+  var next = null;
+  for (var i=0;i<list.length;i++){ if (Number(list[i].value||0) > cur) { next = list[i]; break; } }
+  var done = list.filter(function(p){ return Number(p.value||0) <= cur; }).length;
+
+  var rows = list.length ? list.map(function(p, i){
+    var v = Number(p.value||0);
+    var ach = cur >= v;
+    var isNext = next && Number(next.value||0) === v;
+    return '<article class="pledge-row'+(ach?' achieved':'')+(isNext?' current':'')+'">'+
+      '<span class="pledge-index">'+pad2(i+1)+'</span>'+
+      '<strong>'+esc(p.amount_label)+'</strong>'+
+      '<p>'+esc(p.reward)+'</p>'+
+      '<span class="pledge-status">'+esc(ach?T('pledge-st-done'):(isNext?T('pledge-st-next'):T('pledge-st-wait')))+'</span>'+
+    '</article>';
+  }).join('') : '<div class="wu-empty">'+esc(T('empty-pledge'))+'</div>';
+
+  return '<section class="reward-view pledge-view">'+
+    '<header class="reward-header"><p>'+esc(T('pledge-kicker'))+'</p>'+
+      '<h1>'+esc(T('pledge-title'))+'</h1><span>'+esc(T('pledge-note'))+'</span></header>'+
+    (list.length ? '<div class="pledge-progress-panel">'+
+      '<div class="pledge-progress-top">'+
+        '<span>'+esc(T('pledge-cur-label'))+' <strong>'+nf.format(cur)+esc(T('pledge-unit'))+'</strong></span>'+
+        '<strong>'+pct.toFixed(1)+'%</strong>'+
+      '</div>'+
+      '<div class="pledge-progress-track" role="progressbar" aria-label="누적공약 달성률" aria-valuemin="0" aria-valuemax="'+max+'" aria-valuenow="'+cur+'">'+
+        '<span style="width:'+pct+'%"></span></div>'+
+      '<div class="pledge-progress-bottom">'+
+        '<span>'+esc(T('pledge-done-label'))+' <strong>'+done+'</strong> / '+list.length+'</span>'+
+        '<span>'+(next ? esc(T('pledge-next-prefix'))+' '+esc(next.amount_label)+' · '+nf.format(Number(next.value||0)-cur)+esc(T('pledge-next-suffix'))
+                       : esc(T('pledge-all-done')))+'</span>'+
+      '</div>'+
+    '</div>' : '')+
+    '<div class="pledge-list">'+rows+'</div>'+
+  '</section>';
+}
+
+/* ── 개인보상 ── */
+function personalHTML(){
+  var rows = S.personal.length ? S.personal.map(function(p, i){
+    return '<article class="reward-row"><span class="reward-index">'+pad2(i+1)+'</span>'+
+      '<strong>'+esc(p.amount_label)+'</strong><p>'+esc(p.reward)+'</p></article>';
+  }).join('') : '<div class="wu-empty">'+esc(T('empty-personal'))+'</div>';
+  return '<section class="reward-view personal-view">'+
+    '<header class="reward-header"><p>'+esc(T('personal-kicker'))+'</p>'+
+      '<h1>'+esc(T('personal-title'))+'</h1><span>'+esc(T('personal-note'))+'</span></header>'+
+    '<div class="reward-list">'+rows+'</div></section>';
+}
+
+/* ── 누적보상 ── */
+function cumulativeHTML(){
+  var tiers = S.tiers.length ? S.tiers.map(function(t, ti){
+    var id = 'tier-'+ti;
+    var items = t.items || [];
+    var cards = items.length ? items.map(function(it){
+      return '<figure class="product-card">'+
+        '<img src="'+esc(it.image_url)+'" alt="'+esc(it.label)+'" loading="lazy" referrerpolicy="no-referrer">'+
+        '<figcaption>'+esc(it.label)+'</figcaption></figure>';
+    }).join('') : '';
+    return '<section class="product-tier" aria-labelledby="'+id+'-title">'+
+      '<h2 id="'+id+'-title">'+esc(t.amount_label)+'</h2>'+
+      '<div class="product-gallery-wrap">'+
+        (items.length ? '<div class="product-gallery" id="'+id+'">'+cards+'</div>'
+                      : '<div class="wu-empty">'+esc(T('empty-tier'))+'</div>')+
+        (items.length > 3
+          ? '<button class="product-gallery-prev" type="button" data-scroll="'+id+'" data-dir="-1" aria-label="이전 보상 보기"><span aria-hidden="true"></span></button>'+
+            '<button class="product-gallery-next" type="button" data-scroll="'+id+'" data-dir="1" aria-label="다음 보상 보기"><span aria-hidden="true"></span></button>'
+          : '')+
+      '</div></section>';
+  }).join('') : '<div class="wu-empty">'+esc(T('empty-cumul'))+'</div>';
+
+  return '<section class="reward-view cumulative-view">'+
+    '<header class="reward-header"><p>'+esc(T('cumul-kicker'))+'</p>'+
+      '<h1>'+esc(T('cumul-title'))+'</h1><span>'+esc(T('cumul-note'))+'</span></header>'+
+    '<div class="product-tiers">'+tiers+'</div></section>';
+}
+
+/* ── TOP5 ── */
+function topHTML(){
+  var lis = S.top.length ? S.top.map(function(r, i){
+    var head = r.image_url
+      ? '<img class="top-reward-image" src="'+esc(r.image_url)+'" alt="" loading="lazy" referrerpolicy="no-referrer">'
+      : '<span>'+pad2(i+1)+'</span>';
+    return '<li>'+head+'<p>'+esc(r.label)+'</p></li>';
+  }).join('') : '<li><span>--</span><p>'+esc(T('empty-top'))+'</p></li>';
+  return '<section class="reward-view top-view">'+
+    '<header class="reward-header"><p>'+esc(T('top-kicker'))+'</p>'+
+      '<h1>'+esc(T('top-title'))+'</h1><span>'+esc(T('top-note'))+'</span></header>'+
+    '<ol class="top-list">'+lis+'</ol></section>';
+}
+
+/* ── 보상기록 ── */
+function recordsHTML(){
+  var body;
+  if (S.records.length){
+    body = S.records.map(function(r){
+      var st = String(r.status || '대기');
+      var cls = st.indexOf('완료') > -1 ? 'done' : (st.indexOf('진행') > -1 ? 'ing' : 'wait');
+      return '<div class="records-row" role="row">'+
+        '<span role="cell">'+esc(r.nickname)+'</span>'+
+        '<span role="cell">'+esc(r.reward)+'</span>'+
+        '<span class="rec-state" role="cell"><i class="rec-chip '+cls+'" style="font-style:normal">'+esc(st)+'</i></span>'+
+      '</div>';
+    }).join('');
+  } else {
+    body = '<div class="records-empty"><strong>'+esc(T('rec-empty-title'))+'</strong>'+
+           '<p>'+esc(T('rec-empty-desc'))+'</p></div>';
+  }
+  return '<section class="reward-view records-view">'+
+    '<header class="reward-header"><p>'+esc(T('rec-kicker'))+'</p>'+
+      '<h1>'+esc(T('rec-title'))+'</h1><span>'+esc(T('rec-note'))+'</span></header>'+
+    '<div class="records-table" role="table" aria-label="보상 기록">'+
+      '<div class="records-table-head" role="row">'+
+        '<span role="columnheader">'+esc(T('rec-th-nick'))+'</span>'+
+        '<span role="columnheader">'+esc(T('rec-th-reward'))+'</span>'+
+        '<span role="columnheader">'+esc(T('rec-th-status'))+'</span>'+
+      '</div>'+body+'</div></section>';
+}
+
+/* ── 화면 그리기 ── */
+var BUILD = { main:mainHTML, pledge:pledgeHTML, personal:personalHTML,
+              cumulative:cumulativeHTML, top5:topHTML, records:recordsHTML };
+
+function render(){
+  var panel = document.getElementById('panel');
+  panel.className = 'content-panel content-panel-' + view;
+  panel.setAttribute('aria-labelledby', 'nav-' + view);
+  panel.innerHTML = (BUILD[view] || mainHTML)();
+  renderNav();
+  if (view === 'main') initCollections();
+}
+
+function selectView(k){
+  if (!BUILD[k]) k = 'main';
+  view = k;
+  try { history.replaceState(null, '', k === 'main' ? '#' : '#' + k); } catch(e){}
+  render();
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* ── 컬렉션 무한 루프 스크롤 ── */
+function segWidth(row){
+  var card = row.querySelector('.look-card');
+  if (!card) return 0;
+  var gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+  return (card.getBoundingClientRect().width + gap) * (Number(row.dataset.len) || 1);
+}
+function initCollections(){
+  document.querySelectorAll('.collection-row').forEach(function(row){
+    if (row.dataset.loop !== '1') return;
+    requestAnimationFrame(function(){ row.scrollLeft = segWidth(row); });
+    var t = null;
+    row.addEventListener('scroll', function(){
+      clearTimeout(t);
+      t = setTimeout(function(){
+        var w = segWidth(row);
+        if (!w) return;
+        if (row.scrollLeft < w - 1) row.scrollLeft += w;
+        else if (row.scrollLeft >= w * 2 - 1) row.scrollLeft -= w;
+      }, 140);
+    }, { passive:true });
+  });
+}
+
+/* ── 좌우 화살표 ── */
+document.addEventListener('click', function(e){
+  var nav = e.target.closest('#navList button');
+  if (nav){ selectView(nav.dataset.key); return; }
+
+  var arrow = e.target.closest('[data-scroll]');
+  if (arrow){
+    var row = document.getElementById(arrow.dataset.scroll);
+    if (!row) return;
+    var dir = Number(arrow.dataset.dir) || 1;
+    var step = row.classList.contains('collection-row')
+      ? (segWidth(row) / (Number(row.dataset.len) || 1)) || 200
+      : 320;
+    row.scrollBy({ left: dir * step, behavior:'smooth' });
+  }
+});
+
+/* ── 다크(야간 등화관제) ── */
+function paintKnob(){
+  document.getElementById('darkKnob').textContent = document.body.classList.contains('dark') ? '☾' : '☀';
+}
+document.getElementById('darkBtn').addEventListener('click', function(){
+  var on = document.body.classList.toggle('dark');
+  try { localStorage.setItem('theme', on ? 'dark' : 'light'); } catch(e){}
+  paintKnob();
+});
+paintKnob();
+
+/* ── 문의 모달 ── */
+var askBack = document.getElementById('askBack');
+function askOpen(){ askBack.classList.add('on'); document.getElementById('askMsg').focus(); }
+function askClose(){ askBack.classList.remove('on'); }
+document.getElementById('askOpen').addEventListener('click', askOpen);
+document.getElementById('askClose').addEventListener('click', askClose);
+askBack.addEventListener('click', function(e){ if (e.target === askBack) askClose(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') askClose(); });
+document.getElementById('askSend').addEventListener('click', async function(){
+  var msg = document.getElementById('askMsg').value.trim();
+  var nick = document.getElementById('askNick').value.trim();
+  if (!msg){ showToast(T('ask-need')); return; }
+  this.disabled = true;
+  var ok = false;
+  try { ok = await insertRow('inquiries', { nickname: nick || null, message: msg }); } catch(e){}
+  this.disabled = false;
+  if (ok){
+    document.getElementById('askMsg').value = '';
+    document.getElementById('askNick').value = '';
+    askClose();
+    showToast(T('ask-done'));
+  } else {
+    showToast(T('ask-fail'));
+  }
+});
+
+/* =============================================================
+   DB 배선 — 저장한 값이 이 화면에 그대로 반영된다
+   ============================================================= */
+function num(v){ return Number(v) || 0; }
+
+async function load(){
+  try {
+    if (!dbReady()) return;
+
+    var p = await fetchProfile();
+    if (p && typeof p === 'object'){
+      Object.keys(DEFAULT_TEXT).forEach(function(k){
+        if (p[k] !== undefined && p[k] !== null && p[k] !== '') S.text[k] = p[k];
+      });
+      paintTheme(p);
+    }
+
+    var res = await Promise.all([
+      fetchAll('collection_items', { order:'sort_order' }),
+      fetchAll('pledges',          { order:'sort_order' }),
+      fetchAll('personal_rewards', { order:'sort_order' }),
+      fetchAll('cumulative_tiers', { order:'sort_order' }),
+      fetchAll('cumulative_items', { order:'sort_order' }),
+      fetchAll('top_rewards',      { order:'sort_order' }),
+      fetchAll('roulette_odds',    { order:'sort_order' }),
+      fetchAll('reward_records',   { order:'sort_order' })
+    ]);
+
+    /* null = 못 읽음(기본값 유지) / [] = 진짜 비어 있음(빈 상태 표시) */
+    var coll = res[0];
+    if (coll){
+      S.outfits = coll.filter(function(r){ return r.category === 'outfit'; });
+      S.hair    = coll.filter(function(r){ return r.category === 'hair'; });
+    }
+    if (res[1]) S.pledges  = res[1].map(function(r){ return { amount_label:r.amount_label, value:num(r.value), reward:r.reward }; });
+    if (res[2]) S.personal = res[2];
+    if (res[3]){
+      var items = res[4] || [];
+      S.tiers = res[3].map(function(t){
+        return { amount_label: t.amount_label,
+                 items: items.filter(function(it){ return String(it.tier_id) === String(t.id); }) };
+      });
+    }
+    if (res[5]) S.top      = res[5];
+    if (res[6]) S.roulette = res[6];
+    S.records = res[7] || [];
+  } catch(e){
+    console.error('load 실패 — 기본값으로 표시합니다.', e);
+  }
+}
+
+/* ── 문구 반영 (제목 · 설명 · 플레이스홀더 · 인장 · 도장 글자) ── */
+function applyStrings(){
+  document.title = T('site-title');
+  var md = document.querySelector('meta[name="description"]');
+  if (md) md.setAttribute('content', T('site-desc'));
+  var og = document.querySelector('meta[property="og:title"]');
+  if (og) og.setAttribute('content', T('site-title'));
+  var ogd = document.querySelector('meta[property="og:description"]');
+  if (ogd) ogd.setAttribute('content', T('site-desc'));
+  document.getElementById('askNick').placeholder = T('ask-nick-ph');
+  document.getElementById('askMsg').placeholder  = T('ask-msg-ph');
+  var ls = document.getElementById('loadStamp');
+  if (ls) ls.textContent = T('brand-stamp');
+  document.documentElement.style.setProperty('--rec-glyph', '"' + String(T('rec-glyph')).replace(/"/g,'') + '"');
+}
+
+/* ── 시작 ── */
+(async function boot(){
+  try {
+    var hash = (location.hash || '').slice(1);
+    if (BUILD[hash]) view = hash;
+  } catch(e){}
+  render();
+  await load();
+  document.getElementById('sideNote').innerHTML = br(T('side-note'));
+  document.querySelectorAll('[data-hook]').forEach(function(el){
+    var v = S.text[el.dataset.hook];
+    if (v !== undefined && v !== null && v !== '') el.innerHTML = br(v);
+  });
+  applyStrings();
+  render();
+  document.body.classList.add('ready');
+  if (window.fxHideLoader) window.fxHideLoader();
+  try { enableIframeAutoHeight(); } catch(e){}
+})();
+
+window.addEventListener('hashchange', function(){
+  var k = (location.hash || '').slice(1);
+  if (BUILD[k] && k !== view) { view = k; render(); }
+});
+
+})();
+</script>
+<script src="/fx.js"></script>
+</body>
+</html>

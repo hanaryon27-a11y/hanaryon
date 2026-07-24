@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔐 지력사무소 Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Serif+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#211b15; --paper:#f7f0df; --line:#c9b99d;
+  --accent:#ad342b; --wu-red:#7a1f1b; --gold:#b38636; --signal:#58d9d7; --muted:#706455;
+  --panel-hi:color-mix(in srgb,var(--paper) 94%,#fff);
+  --panel-lo:color-mix(in srgb,var(--paper) 80%,#c9a86a);
+  --card-bg:color-mix(in srgb,var(--paper) 90%,#e9d8b6);
+  --wu-red-lite:color-mix(in srgb,var(--wu-red) 76%,#ffb9a6);
+  --wu-red-deep:color-mix(in srgb,var(--wu-red) 62%,#000);
+}
+*{ box-sizing:border-box; }
+body{
+  margin:0; min-width:320px; color:var(--ink);
+  font-family:"Noto Sans KR","Pretendard",system-ui,sans-serif;
+  background:
+    linear-gradient(180deg,rgba(76,45,28,.05),rgba(78,35,27,.1)),
+    url("/wu-river-background.webp") center top/cover fixed no-repeat,
+    #d2bfa6;
+}
+.wrap{ width:min(1080px,94vw); margin:34px auto 70px; }
+
+/* ── 로그인 ── */
+.login{ position:fixed; z-index:99; inset:0; display:grid; place-items:center; padding:20px;
+  background:linear-gradient(160deg,var(--wu-red-lite),var(--wu-red) 52%,var(--wu-red-deep)); }
+.login-box{ width:min(340px,100%); padding:30px 26px 24px; text-align:center;
+  border:2px solid var(--ink); border-top:8px solid var(--wu-red);
+  background:linear-gradient(145deg,var(--panel-hi),var(--panel-lo));
+  box-shadow:9px 9px 0 rgba(19,12,9,.7); }
+.login-stamp{ display:grid; width:56px; height:56px; margin:0 auto 14px; place-items:center;
+  border:3px solid var(--gold); background:#f1dfbe; color:var(--wu-red);
+  font:800 26px/1 "Noto Serif KR",serif; box-shadow:inset 0 0 0 3px rgba(122,31,27,.28); }
+.login h1{ margin:0 0 4px; font:700 22px/1.2 "Noto Serif KR",serif; letter-spacing:-.03em; }
+.login p{ margin:0 0 18px; color:var(--muted); font-size:12px; }
+.login-err{ min-height:20px; margin-top:10px; color:#a3231b; font-size:12px; font-weight:700; }
+
+/* ── 헤더 ── */
+.head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  margin-bottom:18px; padding:14px 20px; border:2px solid var(--ink); border-left:8px solid var(--wu-red);
+  background:linear-gradient(145deg,var(--panel-hi),var(--panel-lo));
+  box-shadow:7px 7px 0 rgba(22,13,10,.75); }
+.head .kicker{ margin:0 0 3px; color:var(--wu-red); font-size:9px; font-weight:850; letter-spacing:.2em; }
+.head h1{ margin:0; font:650 27px/1.1 "Noto Serif KR",serif; letter-spacing:-.045em; }
+.head .side{ display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11px; }
+.dot{ display:inline-block; width:7px; height:7px; border-radius:50%; background:#c9b99d; }
+.dot.on{ background:var(--signal); box-shadow:0 0 8px rgba(88,217,215,.8); }
+
+/* ── 탭 ── */
+.tabs{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:18px; padding:7px;
+  border:2px solid var(--ink); background:rgba(35,22,16,.9); box-shadow:6px 6px 0 rgba(22,13,10,.6); }
+.tab-btn{ flex:1 1 auto; min-width:88px; padding:9px 10px; cursor:pointer; white-space:nowrap;
+  border:1px solid rgba(218,179,106,.45); background:rgba(255,240,210,.06);
+  color:#f0dcb6; font:800 12px/1 "Noto Sans KR",sans-serif; transition:150ms ease; }
+.tab-btn:hover{ border-color:#e2bc73; background:rgba(196,71,56,.7); color:#fff6e4; }
+.tab-btn.active{ border-color:var(--gold); border-left:5px solid var(--gold);
+  background:#f2e2c5; color:var(--ink); }
+.tab-panel{ display:none; }
+.tab-panel.active{ display:block; animation:in 300ms ease both; }
+@keyframes in{ from{ opacity:0; transform:translateY(7px); } }
+
+/* ── 카드 ── */
+.card{ margin-bottom:16px; padding:22px 24px 24px; border:2px solid var(--ink);
+  background:linear-gradient(145deg,var(--panel-hi),var(--panel-lo));
+  box-shadow:7px 7px 0 rgba(22,13,10,.7); }
+.card-title{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  margin:0 0 14px; padding:0 0 10px 13px; border-bottom:1px solid rgba(33,27,21,.5);
+  border-left:5px solid var(--wu-red); font:700 17px/1.3 "Noto Serif KR",serif; letter-spacing:-.03em; }
+.hint{ margin-top:6px; color:var(--muted); font-size:11.5px; line-height:1.75; }
+.hint code{ padding:1px 5px; border:1px solid var(--line); background:rgba(255,255,255,.5);
+  font-size:11px; white-space:nowrap; }
+.hint b{ color:var(--wu-red); }
+
+/* ── 입력 ── */
+.field{ display:grid; gap:5px; margin-bottom:12px; }
+.field > label{ color:var(--muted); font-size:9.5px; font-weight:850; letter-spacing:.15em; }
+.input{
+  width:100%; box-sizing:border-box;      /* ⚠️ 그리드 칸 넘침·라벨 겹침 방지 — 절대 지우지 말 것 */
+  padding:9px 11px; border:1px solid var(--ink); border-radius:2px;
+  background:rgba(255,255,255,.6); color:var(--ink); font:inherit; font-size:13px;
+}
+textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
+.input:focus{ outline:none; border-color:var(--wu-red); box-shadow:2px 2px 0 rgba(122,31,27,.3); }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+.grid2 > .field, .grid3 > .field{ margin-bottom:0; min-width:0; }
+@media(max-width:720px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+
+.btn{ padding:9px 16px; cursor:pointer; border:2px solid var(--ink); border-radius:2px;
+  background:var(--card-bg); color:var(--ink); font:inherit; font-size:12px; font-weight:800;
+  transition:150ms ease; }
+.btn:hover{ box-shadow:3px 3px 0 rgba(122,31,27,.5); transform:translate(-1px,-1px); }
+.btn.primary{ background:var(--wu-red); color:#ffeecf; }
+.btn.ghost{ background:transparent; }
+.btn:disabled{ opacity:.45; cursor:default; transform:none; box-shadow:none; }
+.row-end{ display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
+
+/* ── 표 (⚠️ 삭제 아이콘 잘림 방지 규칙 포함) ── */
+.table-wrap{ overflow-x:auto; margin-top:6px; }
+.table-wrap table{ width:100%; border-collapse:collapse; }
+.table-wrap th{ padding:10px 12px; text-align:left; white-space:nowrap;
+  background:var(--wu-red); color:#ffeecf; font-size:11px; font-weight:800; letter-spacing:.04em; }
+.table-wrap th.ord, .table-wrap th.del{ width:62px; text-align:center; }
+.table-wrap td{ padding:9px 10px; border-bottom:1px solid rgba(33,27,21,.18);
+  font-size:12.5px; vertical-align:middle; }
+.table-wrap td.ord, .table-wrap td.del{ width:62px; text-align:center; white-space:nowrap; }
+.table-wrap tr:last-child td{ border-bottom:0; }
+.table-wrap tbody tr:nth-child(2n){ background:rgba(255,255,255,.28); }
+.table-wrap .input{ font-size:12.5px; padding:7px 9px; }
+.ordbtn{ width:24px; height:20px; padding:0; margin:0 1px; cursor:pointer; line-height:1;
+  border:1px solid var(--line); background:var(--card-bg); color:var(--ink); font-size:10px; }
+.ordbtn:disabled{ opacity:.3; cursor:default; }
+.delbtn{ padding:4px 8px; cursor:pointer; border:1px solid var(--line); background:transparent;
+  color:var(--muted); font-size:14px; line-height:1; }
+.delbtn:hover{ border-color:#a3231b; color:#a3231b; }
+.thumb{ width:44px; height:44px; object-fit:cover; border:1px solid var(--ink);
+  background:rgba(255,255,255,.5); display:block; }
+.empty{ padding:26px; text-align:center; color:var(--muted); font-size:12.5px;
+  border:1px dashed rgba(57,43,32,.4); }
+
+/* ── 팔레트 ── */
+.palette{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media(max-width:760px){ .palette{ grid-template-columns:1fr; } }
+.pal{ display:grid; grid-template-columns:46px minmax(0,1fr); grid-template-rows:auto auto;
+  gap:5px 12px; align-items:center; padding:11px 13px; border:1px solid var(--ink); background:rgba(255,255,255,.4); }
+.pal input[type=color]{ grid-row:1 / span 2; width:46px; height:46px; padding:2px; cursor:pointer;
+  border:1px solid var(--ink); border-radius:2px; background:none; }
+.pal label{ font-size:13px; font-weight:800; }
+.pal .input{ margin:0; height:32px; padding:4px 8px; font-size:12px; }
+.pal .pdesc{ grid-column:1 / -1; margin-top:2px; color:var(--muted); font-size:11px; line-height:1.6; }
+.pal-preview{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:14px;
+  padding:16px 18px; border:2px solid var(--ink); background:linear-gradient(145deg,var(--panel-hi),var(--panel-lo)); }
+.pp-stamp{ display:grid; width:44px; height:44px; place-items:center; border:2px solid var(--gold);
+  background:#f1dfbe; color:var(--wu-red); font:800 20px/1 "Noto Serif KR",serif; }
+.pp-bar{ flex:1; min-width:140px; height:9px; border:1px solid var(--ink);
+  background:linear-gradient(90deg,var(--gold),var(--wu-red)); }
+.pp-chip{ padding:5px 11px; border:1px solid var(--ink); background:var(--accent); color:#fff2d8;
+  font-size:10px; font-weight:800; }
+.pp-dot{ width:9px; height:9px; border-radius:50%; background:var(--signal); box-shadow:0 0 9px var(--signal); }
+
+/* ── 문의함 ── */
+.inq{ padding:14px 16px; margin-bottom:9px; border:1px solid var(--ink); background:var(--card-bg); }
+.inq-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px;
+  color:var(--muted); font-size:10.5px; font-weight:800; letter-spacing:.06em; }
+.inq p{ margin:0; font-size:13px; line-height:1.75; white-space:pre-wrap; word-break:break-word; }
+
+/* ── 토스트 ── */
+.toast{ position:fixed; z-index:120; bottom:24px; left:50%; padding:11px 20px;
+  border:2px solid var(--ink); background:var(--wu-red); color:#fff2d8;
+  font-size:12.5px; font-weight:750; opacity:0; pointer-events:none;
+  box-shadow:4px 4px 0 rgba(22,13,10,.7); transform:translate(-50%,14px); transition:200ms ease; }
+.toast.show{ opacity:1; transform:translate(-50%,0); }
+</style>
+</head>
+<body>
+
+<!-- ── 로그인 ── -->
+<div class="login" id="login">
+  <div class="login-box">
+    <div class="login-stamp">吳</div>
+    <h1>지력사무소 관리실</h1>
+    <p>관리자 비밀번호를 입력하세요</p>
+    <input class="input" id="pw" type="password" placeholder="비밀번호" style="text-align:center">
+    <div style="margin-top:10px"><button class="btn primary" style="width:100%" id="loginBtn">입장</button></div>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div class="wrap" id="admin" style="display:none">
+
+  <div class="head">
+    <div>
+      <p class="kicker">JIRYEOK OFFICE · CONTROL</p>
+      <h1>후원보상 관리실</h1>
+    </div>
+    <div class="side">
+      <span class="dot" id="dbDot"></span><span id="dbState">연결 확인 중…</span>
+      <a class="btn ghost" href="/" target="_blank" rel="noopener" style="text-decoration:none">사이트 보기 ↗</a>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="site">🏠 사이트</button>
+    <button class="tab-btn" data-tab="collection">👗 컬렉션</button>
+    <button class="tab-btn" data-tab="roulette">🎲 룰렛</button>
+    <button class="tab-btn" data-tab="pledge">📜 누적공약</button>
+    <button class="tab-btn" data-tab="personal">🎁 개인보상</button>
+    <button class="tab-btn" data-tab="cumulative">📦 누적보상</button>
+    <button class="tab-btn" data-tab="top5">🏆 TOP5</button>
+    <button class="tab-btn" data-tab="records">📖 보상기록</button>
+    <button class="tab-btn" data-tab="inquiry">✉️ 문의</button>
+    <button class="tab-btn" data-tab="theme">🎨 테마</button>
+  </div>
+
+  <!-- ══════════ 사이트 ══════════ -->
+  <div class="tab-panel active" id="tab-site">
+    <div class="card">
+      <div class="card-title">🏷 문서 · 인장</div>
+      <div class="field"><label>브라우저 탭 제목</label>
+        <input class="input" id="f-site-title" type="text" placeholder="지력사무소 | 후원 보상 안내">
+        <div class="hint">브라우저 탭·즐겨찾기에 뜨는 이름이에요.</div></div>
+      <div class="grid2">
+        <div class="field"><label>인장 글자 (사이드바 도장)</label>
+          <input class="input" id="f-brand-stamp" type="text" maxlength="2" placeholder="吳">
+          <div class="hint">한 글자 권장. 두 글자 넘으면 도장 칸을 넘칩니다.</div></div>
+        <div class="field"><label>인장 옆 영문</label>
+          <input class="input" id="f-brand-sub" type="text" placeholder="JIRYEOK"></div>
+      </div>
+      <div class="field"><label>검색 · 공유 설명 (SNS 미리보기)</label>
+        <input class="input" id="f-site-desc" type="text" placeholder="의상과 헤어 컬렉션, 누적 공약과 후원 보상을 한눈에 확인하세요.">
+        <div class="hint">카톡·X에 링크를 붙였을 때 제목 밑에 뜨는 한 줄이에요.</div></div>
+      <div class="field"><label>사이드바 하단 문구 (줄바꿈=엔터)</label>
+        <textarea class="input" id="f-side-note" rows="2" placeholder="江東 · WU VIRTUAL ARCHIVE&#10;JIRYEOK OFFICE"></textarea>
+        <div class="hint">2줄 정도가 딱 좋아요. 길면 사이드바가 늘어납니다.</div></div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧭 목차 (사이드바 6칸)</div>
+      <div class="hint" style="margin:0 0 12px">한글 이름은 크게, 영문은 위쪽 작은 글씨로 나옵니다. 순서·개수는 고정이에요.</div>
+      <div class="grid2">
+        <div class="field"><label>1. 메인 — 한글</label><input class="input" id="f-nav-main-ko" type="text" placeholder="메인"></div>
+        <div class="field"><label>1. 메인 — 영문</label><input class="input" id="f-nav-main-en" type="text" placeholder="MAIN"></div>
+        <div class="field"><label>2. 누적공약 — 한글</label><input class="input" id="f-nav-pledge-ko" type="text" placeholder="누적공약"></div>
+        <div class="field"><label>2. 누적공약 — 영문</label><input class="input" id="f-nav-pledge-en" type="text" placeholder="PROMISE"></div>
+        <div class="field"><label>3. 개인보상 — 한글</label><input class="input" id="f-nav-personal-ko" type="text" placeholder="개인보상"></div>
+        <div class="field"><label>3. 개인보상 — 영문</label><input class="input" id="f-nav-personal-en" type="text" placeholder="PERSONAL"></div>
+        <div class="field"><label>4. 누적보상 — 한글</label><input class="input" id="f-nav-cumulative-ko" type="text" placeholder="누적보상"></div>
+        <div class="field"><label>4. 누적보상 — 영문</label><input class="input" id="f-nav-cumulative-en" type="text" placeholder="TOTAL"></div>
+        <div class="field"><label>5. TOP5 — 한글</label><input class="input" id="f-nav-top5-ko" type="text" placeholder="TOP5 보상"></div>
+        <div class="field"><label>5. TOP5 — 영문</label><input class="input" id="f-nav-top5-en" type="text" placeholder="TOP 5"></div>
+        <div class="field"><label>6. 보상기록 — 한글</label><input class="input" id="f-nav-records-ko" type="text" placeholder="보상기록"></div>
+        <div class="field"><label>6. 보상기록 — 영문</label><input class="input" id="f-nav-records-en" type="text" placeholder="RECORDS"></div>
+      </div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✉️ 문의 모달 문구</div>
+      <div class="grid2">
+        <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-ask-kicker" type="text" placeholder="CONTACT · 문의"></div>
+        <div class="field"><label>제목</label><input class="input" id="f-ask-title" type="text" placeholder="사무소에 남기기"></div>
+      </div>
+      <div class="field"><label>안내 문구</label>
+        <textarea class="input" id="f-ask-desc" rows="2"></textarea>
+        <div class="hint">받은 문의는 <b>✉️ 문의</b> 탭에서 확인할 수 있어요.</div></div>
+      <div class="grid2">
+        <div class="field"><label>사이드바 버튼 글자</label><input class="input" id="f-ask-btn" type="text" placeholder="✉ 문의하기"></div>
+        <div class="field"><label>닉네임 칸 라벨</label><input class="input" id="f-ask-nick-label" type="text" placeholder="닉네임"></div>
+        <div class="field"><label>닉네임 칸 안내글(회색 글씨)</label><input class="input" id="f-ask-nick-ph" type="text" placeholder="닉네임 (선택)"></div>
+        <div class="field"><label>내용 칸 라벨</label><input class="input" id="f-ask-msg-label" type="text" placeholder="내용"></div>
+        <div class="field"><label>내용 칸 안내글(회색 글씨)</label><input class="input" id="f-ask-msg-ph" type="text" placeholder="내용을 적어주세요"></div>
+        <div class="field"><label>닫기 버튼</label><input class="input" id="f-ask-close" type="text" placeholder="닫기"></div>
+        <div class="field"><label>보내기 버튼</label><input class="input" id="f-ask-send" type="text" placeholder="보내기"></div>
+        <div class="field"><label>내용 비었을 때 알림</label><input class="input" id="f-ask-need" type="text" placeholder="내용을 적어주세요."></div>
+        <div class="field"><label>전송 성공 알림</label><input class="input" id="f-ask-done" type="text" placeholder="문의가 전달됐어요. 고마워요!"></div>
+        <div class="field"><label>전송 실패 알림</label><input class="input" id="f-ask-fail" type="text" placeholder="전송에 실패했어요. 잠시 뒤 다시 시도해 주세요."></div>
+      </div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+  </div>
+
+  <!-- ══════════ 컬렉션 ══════════ -->
+  <div class="tab-panel" id="tab-collection">
+    <div class="card">
+      <div class="card-title">✏️ 섹션 문구</div>
+      <div class="grid2">
+        <div class="field"><label>의상 — 작은 영문 라벨</label><input class="input" id="f-outfit-kicker" type="text"></div>
+        <div class="field"><label>의상 — 제목</label><input class="input" id="f-outfit-title" type="text" placeholder="의상"></div>
+        <div class="field"><label>헤어 — 작은 영문 라벨</label><input class="input" id="f-hair-kicker" type="text"></div>
+        <div class="field"><label>헤어 — 제목</label><input class="input" id="f-hair-title" type="text" placeholder="헤어"></div>
+        <div class="field"><label>사진 위 번호 앞글자</label>
+          <input class="input" id="f-look-prefix" type="text" placeholder="LOOK">
+          <div class="hint">사진 캡션의 <code>LOOK 01</code>에서 <b>LOOK</b> 부분이에요.</div></div>
+        <div class="field"><label>목록이 비었을 때 문구</label><input class="input" id="f-empty-collection" type="text" placeholder="아직 등록된 항목이 없어요."></div>
+      </div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👗 의상 <span style="font:500 11px/1.6 'Noto Sans KR';color:var(--muted)">세로 3:4 (900×1200) 권장</span></div>
+      <div class="grid2">
+        <div class="field"><label>이름</label><input class="input" id="add-outfit-label" type="text" placeholder="예: 화이트 드레스"></div>
+        <div class="field"><label>이미지 주소 (URL)</label><input class="input" id="add-outfit-url" type="text" placeholder="/characters/look-01.webp 또는 https://…"></div>
+      </div>
+      <div class="hint">이미지는 <b>주소만</b> 넣습니다. SOOP 비공개 게시판에 올린 뒤 이미지 <b>우클릭 → 이미지 주소 복사</b>. 레포에 같이 올린 파일이면 <code>/characters/look-01.webp</code>처럼 슬래시로 시작.</div>
+      <div class="row-end"><button class="btn primary" data-add="outfit">의상 추가</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:56px">사진</th><th>이름</th><th>이미지 주소</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <tbody id="tb-outfit"></tbody></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💇 헤어 <span style="font:500 11px/1.6 'Noto Sans KR';color:var(--muted)">세로 3:4 (900×1200) 권장</span></div>
+      <div class="grid2">
+        <div class="field"><label>이름</label><input class="input" id="add-hair-label" type="text" placeholder="예: 웨이브 롱"></div>
+        <div class="field"><label>이미지 주소 (URL)</label><input class="input" id="add-hair-url" type="text" placeholder="/characters/look-05.webp 또는 https://…"></div>
+      </div>
+      <div class="row-end"><button class="btn primary" data-add="hair">헤어 추가</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:56px">사진</th><th>이름</th><th>이미지 주소</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <tbody id="tb-hair"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 룰렛 ══════════ -->
+  <div class="tab-panel" id="tab-roulette">
+    <div class="card">
+      <div class="card-title">✏️ 섹션 문구</div>
+      <div class="grid2">
+        <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-roulette-kicker" type="text"></div>
+        <div class="field"><label>제목</label><input class="input" id="f-roulette-title" type="text" placeholder="룰렛 확률"></div>
+        <div class="field"><label>오른쪽 배지 (비우면 숨김)</label><input class="input" id="f-roulette-badge" type="text" placeholder="SAMPLE"></div>
+        <div class="field"><label>표 아래 각주 (비우면 숨김)</label><input class="input" id="f-roulette-note" type="text"></div>
+      </div>
+      <div class="field"><label>룰렛 가운데 마스코트 이미지 주소</label>
+        <input class="input" id="f-roulette-mascot" type="text" placeholder="/bee-mascot.png">
+        <div class="hint">배경이 투명한 PNG를 넣으면 제일 깔끔해요. 정사각형(1:1) 권장.</div></div>
+      <div class="field"><label>확률표가 비었을 때 문구</label><input class="input" id="f-empty-roulette" type="text" placeholder="확률표가 아직 비어 있어요."></div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎲 확률표</div>
+      <div class="grid2">
+        <div class="field"><label>항목</label><input class="input" id="add-roulette-label" type="text" placeholder="예: 카드팩"></div>
+        <div class="field"><label>확률</label><input class="input" id="add-roulette-chance" type="text" placeholder="예: 40%"></div>
+      </div>
+      <div class="hint">화면에서는 <b>위에서부터 절반씩 두 칸</b>으로 나뉘어 보여요. 확률은 <code>40%</code>처럼 % 기호까지 그대로 적으면 됩니다.</div>
+      <div class="row-end"><button class="btn primary" data-add="roulette">확률 추가</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>항목</th><th style="width:120px">확률</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <tbody id="tb-roulette"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 누적공약 ══════════ -->
+  <div class="tab-panel" id="tab-pledge">
+    <div class="card">
+      <div class="card-title">📈 현재 누적 개수 (진행바)</div>
+      <div class="field"><label>지금까지 누적된 개수</label>
+        <input class="input" id="f-pledge-current" type="text" inputmode="numeric" placeholder="예: 32500">
+        <div class="hint">숫자만 적어주세요(쉼표 없이). 이 값으로 <b>진행바 %·달성/다음/대기 배지</b>가 자동 계산돼요. 목록 맨 아래 공약의 숫자값이 100% 기준입니다.</div></div>
+      <div class="grid3">
+        <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-pledge-kicker" type="text"></div>
+        <div class="field"><label>제목</label><input class="input" id="f-pledge-title" type="text" placeholder="누적공약"></div>
+        <div class="field"><label>부제</label><input class="input" id="f-pledge-note" type="text" placeholder="누적으로 다 합니다"></div>
+      </div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔤 진행바 · 배지 문구</div>
+      <div class="grid3">
+        <div class="field"><label>진행바 왼쪽 라벨</label><input class="input" id="f-pledge-cur-label" type="text" placeholder="현재 누적"></div>
+        <div class="field"><label>개수 단위</label><input class="input" id="f-pledge-unit" type="text" placeholder="개"></div>
+        <div class="field"><label>달성 개수 라벨</label><input class="input" id="f-pledge-done-label" type="text" placeholder="달성 보상"></div>
+        <div class="field"><label>다음 목표 — 앞말</label><input class="input" id="f-pledge-next-prefix" type="text" placeholder="다음"></div>
+        <div class="field"><label>다음 목표 — 뒷말</label><input class="input" id="f-pledge-next-suffix" type="text" placeholder="개 남음"></div>
+        <div class="field"><label>전부 달성했을 때</label><input class="input" id="f-pledge-all-done" type="text" placeholder="모든 누적공약 달성!"></div>
+      </div>
+      <div class="hint" style="margin:10px 0 0">완성 문장 예시 — <b>다음</b> 5만개 · 17,500<b>개 남음</b></div>
+      <div class="grid3" style="margin-top:12px">
+        <div class="field"><label>배지 — 달성</label><input class="input" id="f-pledge-st-done" type="text" placeholder="달성"></div>
+        <div class="field"><label>배지 — 다음 차례</label><input class="input" id="f-pledge-st-next" type="text" placeholder="다음"></div>
+        <div class="field"><label>배지 — 대기</label><input class="input" id="f-pledge-st-wait" type="text" placeholder="대기"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>공약이 하나도 없을 때 문구</label><input class="input" id="f-empty-pledge" type="text" placeholder="등록된 공약이 없어요."></div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📜 공약 목록</div>
+      <div class="grid3">
+        <div class="field"><label>표시 문구</label><input class="input" id="add-pledge-label" type="text" placeholder="예: 5만개"></div>
+        <div class="field"><label>숫자값 (계산용)</label><input class="input" id="add-pledge-value" type="text" inputmode="numeric" placeholder="예: 50000"></div>
+        <div class="field"><label>보상 내용</label><input class="input" id="add-pledge-reward" type="text" placeholder="예: 모션캡쳐 방송"></div>
+      </div>
+      <div class="hint"><b>표시 문구</b>는 눈에 보이는 글자(5만개), <b>숫자값</b>은 진행률 계산용 숫자(50000)예요. 둘이 달라도 되지만 <b>숫자값은 반드시 오름차순</b>으로 정렬해 주세요.</div>
+      <div class="row-end"><button class="btn primary" data-add="pledge">공약 추가</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:130px">표시 문구</th><th style="width:120px">숫자값</th><th>보상 내용</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <tbody id="tb-pledge"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 개인보상 ══════════ -->
+  <div class="tab-panel" id="tab-personal">
+    <div class="card">
+      <div class="card-title">✏️ 섹션 문구</div>
+      <div class="grid3">
+        <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-personal-kicker" type="text"></div>
+        <div class="field"><label>제목</label><input class="input" id="f-personal-title" type="text" placeholder="개인보상"></div>
+        <div class="field"><label>부제</label><input class="input" id="f-personal-note" type="text"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>목록이 비었을 때 문구</label><input class="input" id="f-empty-personal" type="text" placeholder="등록된 개인보상이 없어요."></div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎁 개인보상 목록</div>
+      <div class="grid2">
+        <div class="field"><label>개수 문구</label><input class="input" id="add-personal-label" type="text" placeholder="예: 500개"></div>
+        <div class="field"><label>보상 내용</label><input class="input" id="add-personal-reward" type="text" placeholder="예: 복붙방셀 + 역팬 10개"></div>
+      </div>
+      <div class="row-end"><button class="btn primary" data-add="personal">보상 추가</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:150px">개수 문구</th><th>보상 내용</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <tbody id="tb-personal"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 누적보상 ══════════ -->
+  <div class="tab-panel" id="tab-cumulative">
+    <div class="card">
+      <div class="card-title">✏️ 섹션 문구</div>
+      <div class="grid3">
+        <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-cumul-kicker" type="text"></div>
+        <div class="field"><label>제목</label><input class="input" id="f-cumul-title" type="text" placeholder="누적보상"></div>
+        <div class="field"><label>부제</label><input class="input" id="f-cumul-note" type="text"></div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>구간이 하나도 없을 때</label><input class="input" id="f-empty-cumul" type="text" placeholder="등록된 누적보상 구간이 없어요."></div>
+        <div class="field"><label>구간 안이 비었을 때</label><input class="input" id="f-empty-tier" type="text" placeholder="이 구간에 등록된 보상이 없어요."></div>
+      </div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">➕ 구간 추가</div>
+      <div class="field"><label>구간 이름</label>
+        <input class="input" id="add-tier-label" type="text" placeholder="예: 5000개 이상">
+        <div class="hint">구간을 만든 뒤, 아래 구간 카드 안에서 <b>상품</b>을 하나씩 넣어주세요. 상품이 4개 이상이면 화면에 좌우 화살표가 생깁니다.</div></div>
+      <div class="row-end"><button class="btn primary" data-add="tier">구간 추가</button></div>
+    </div>
+
+    <div id="tierList"></div>
+  </div>
+
+  <!-- ══════════ TOP5 ══════════ -->
+  <div class="tab-panel" id="tab-top5">
+    <div class="card">
+      <div class="card-title">✏️ 섹션 문구</div>
+      <div class="grid3">
+        <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-top-kicker" type="text"></div>
+        <div class="field"><label>제목</label><input class="input" id="f-top-title" type="text" placeholder="TOP5 보상"></div>
+        <div class="field"><label>부제</label><input class="input" id="f-top-note" type="text" placeholder="1개 골라주세요"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>목록이 비었을 때 문구</label><input class="input" id="f-empty-top" type="text" placeholder="등록된 TOP5 보상이 없어요."></div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏆 TOP5 보상 목록</div>
+      <div class="grid2">
+        <div class="field"><label>보상 이름</label><input class="input" id="add-top-label" type="text" placeholder="예: 수제 목도리 (11월 내)"></div>
+        <div class="field"><label>이미지 주소 (비워도 됨)</label><input class="input" id="add-top-url" type="text" placeholder="/rewards/scarf.webp"></div>
+      </div>
+      <div class="hint">이미지를 <b>비우면 번호(01·02…)</b>가 대신 표시돼요. 이미지는 가로세로 비슷한 정사각형에 가까울수록 예쁘게 들어갑니다.</div>
+      <div class="row-end"><button class="btn primary" data-add="top">보상 추가</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:56px">사진</th><th>보상 이름</th><th>이미지 주소</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <tbody id="tb-top"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 보상기록 ══════════ -->
+  <div class="tab-panel" id="tab-records">
+    <div class="card">
+      <div class="card-title">✏️ 섹션 문구</div>
+      <div class="grid3">
+        <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-rec-kicker" type="text"></div>
+        <div class="field"><label>제목</label><input class="input" id="f-rec-title" type="text" placeholder="보상기록"></div>
+        <div class="field"><label>부제</label><input class="input" id="f-rec-note" type="text"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>기록이 없을 때 — 큰 글씨</label><input class="input" id="f-rec-empty-title" type="text"></div>
+        <div class="field"><label>기록이 없을 때 — 작은 글씨</label><input class="input" id="f-rec-empty-desc" type="text"></div>
+      </div>
+      <div class="grid3" style="margin-top:4px">
+        <div class="field"><label>표 머리 — 1번칸</label><input class="input" id="f-rec-th-nick" type="text" placeholder="닉네임"></div>
+        <div class="field"><label>표 머리 — 2번칸</label><input class="input" id="f-rec-th-reward" type="text" placeholder="보상"></div>
+        <div class="field"><label>표 머리 — 3번칸</label><input class="input" id="f-rec-th-status" type="text" placeholder="상태"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>빈 화면 가운데 도장 글자</label>
+        <input class="input" id="f-rec-glyph" type="text" maxlength="2" placeholder="錄">
+        <div class="hint">한 글자 권장. 기록이 없을 때 가운데 뜨는 네모 도장 안 글자예요.</div></div>
+      <div class="hint">아래에 기록을 하나라도 넣으면 이 안내문 대신 <b>표</b>가 보여요.</div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📖 보상기록 목록</div>
+      <div class="grid3">
+        <div class="field"><label>닉네임</label><input class="input" id="add-rec-nick" type="text" placeholder="예: 지력이"></div>
+        <div class="field"><label>보상</label><input class="input" id="add-rec-reward" type="text" placeholder="예: 지력 탁상시계"></div>
+        <div class="field"><label>상태</label>
+          <select class="input" id="add-rec-status">
+            <option value="대기">대기</option>
+            <option value="진행중">진행중</option>
+            <option value="완료">완료</option>
+          </select></div>
+      </div>
+      <div class="hint">상태에 따라 화면 배지 색이 바뀌어요 — <b>완료</b>는 붉은 인장, <b>진행중</b>은 금박, <b>대기</b>는 회색.</div>
+      <div class="row-end"><button class="btn primary" data-add="record">기록 추가</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:150px">닉네임</th><th>보상</th><th style="width:110px">상태</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <tbody id="tb-record"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 문의 ══════════ -->
+  <div class="tab-panel" id="tab-inquiry">
+    <div class="card">
+      <div class="card-title">✉️ 받은 문의
+        <button class="btn ghost" id="inqReload">새로고침</button></div>
+      <div class="hint" style="margin:0 0 12px">사이트 사이드바의 <b>✉ 문의하기</b>로 들어온 글이에요. 최신순으로 보입니다.</div>
+      <div id="inqList"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ 테마 ══════════ -->
+  <div class="tab-panel" id="tab-theme">
+    <div class="card">
+      <div class="card-title">🎨 색 팔레트</div>
+      <div class="hint" style="margin:0 0 14px">여기서 고른 6색이 <b>사이트 전 화면</b>에 바로 적용돼요. 카드·패널 바탕색, 사이드바 그라데이션은 이 6색에서 자동으로 계산됩니다.</div>
+      <div class="palette">
+        <div class="pal">
+          <input type="color" id="c-theme-wu-red"><label for="c-theme-wu-red">주색 (朱)</label>
+          <input class="input" id="f-theme-wu-red" type="text" placeholder="#7a1f1b">
+          <div class="pdesc">사이드바·인장·제목 밑줄·달성 배지. 사이트 인상을 결정하는 색.</div>
+        </div>
+        <div class="pal">
+          <input type="color" id="c-theme-accent"><label for="c-theme-accent">강조색</label>
+          <input class="input" id="f-theme-accent" type="text" placeholder="#ad342b">
+          <div class="pdesc">TOP5 번호칸·LOOK 라벨 등 작은 포인트에 쓰여요.</div>
+        </div>
+        <div class="pal">
+          <input type="color" id="c-theme-gold"><label for="c-theme-gold">금박</label>
+          <input class="input" id="f-theme-gold" type="text" placeholder="#b38636">
+          <div class="pdesc">인장 테두리·진행바·선택된 목차의 왼쪽 굵은 선.</div>
+        </div>
+        <div class="pal">
+          <input type="color" id="c-theme-signal"><label for="c-theme-signal">형광 신호</label>
+          <input class="input" id="f-theme-signal" type="text" placeholder="#58d9d7">
+          <div class="pdesc">작게 빛나는 점·주사선. 너무 진하면 촌스러워지니 밝은 청록 계열 추천.</div>
+        </div>
+        <div class="pal">
+          <input type="color" id="c-theme-ink"><label for="c-theme-ink">먹색</label>
+          <input class="input" id="f-theme-ink" type="text" placeholder="#211b15">
+          <div class="pdesc">본문 글자와 모든 테두리. 종이색과 대비가 커야 읽혀요.</div>
+        </div>
+        <div class="pal">
+          <input type="color" id="c-theme-paper"><label for="c-theme-paper">종이색</label>
+          <input class="input" id="f-theme-paper" type="text" placeholder="#f7f0df">
+          <div class="pdesc">패널·카드 바탕. 여기서 밝은 면/어두운 면이 자동으로 만들어집니다.</div>
+        </div>
+      </div>
+
+      <div class="pal-preview">
+        <div class="pp-stamp">吳</div>
+        <div class="pp-bar"></div>
+        <span class="pp-chip">달성</span>
+        <span class="pp-dot"></span>
+        <span style="color:var(--muted);font-size:11px">← 실시간 미리보기</span>
+      </div>
+
+      <div class="row-end">
+        <button class="btn ghost" id="themeReset">기본값으로</button>
+        <button class="btn primary" data-save="theme">팔레트 저장</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/supabase.js"></script>
+<script>
+/* =============================================================
+   지력사무소 관리실
+   ============================================================= */
+(function(){
+'use strict';
+
+var ADMIN_PW = '임시비번1234';
+
+/* ── ⚠️ 페이지가 읽는 키 = 이 배열 = f-{키} 입력칸. 셋이 항상 같아야 함 ── */
+var profileKeys = [
+  'site-title','brand-stamp','brand-sub','side-note',
+  'nav-main-ko','nav-main-en','nav-pledge-ko','nav-pledge-en',
+  'nav-personal-ko','nav-personal-en','nav-cumulative-ko','nav-cumulative-en',
+  'nav-top5-ko','nav-top5-en','nav-records-ko','nav-records-en',
+  'outfit-kicker','outfit-title','hair-kicker','hair-title',
+  'roulette-kicker','roulette-title','roulette-badge','roulette-note','roulette-mascot',
+  'pledge-kicker','pledge-title','pledge-note','pledge-current',
+  'personal-kicker','personal-title','personal-note',
+  'cumul-kicker','cumul-title','cumul-note',
+  'top-kicker','top-title','top-note',
+  'rec-kicker','rec-title','rec-note','rec-empty-title','rec-empty-desc',
+  'ask-kicker','ask-title','ask-desc','site-desc',
+  'ask-btn','ask-nick-label','ask-nick-ph','ask-msg-label','ask-msg-ph',
+  'ask-close','ask-send','ask-need','ask-done','ask-fail',
+  'look-prefix','empty-collection','empty-roulette',
+  'pledge-cur-label','pledge-unit','pledge-done-label',
+  'pledge-next-prefix','pledge-next-suffix','pledge-all-done',
+  'pledge-st-done','pledge-st-next','pledge-st-wait','empty-pledge',
+  'empty-personal','empty-tier','empty-cumul','empty-top',
+  'rec-th-nick','rec-th-reward','rec-th-status','rec-glyph'
+];
+var themeKeys = ['theme-wu-red','theme-accent','theme-gold','theme-signal','theme-ink','theme-paper'];
+
+var $ = function(id){ return document.getElementById(id); };
+function esc(v){
+  if (v === null || v === undefined) return '';
+  if (Array.isArray(v)) v = v.join(', ');
+  else if (typeof v === 'object'){ try{ v = JSON.stringify(v); }catch(e){ v=''; } }
+  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function num(v){ var n = parseInt(String(v).replace(/[^0-9-]/g,''),10); return isNaN(n)?0:n; }
+
+/* ── 로그인 ── */
+function tryLogin(){
+  var v = $('pw').value;
+  if (v === ADMIN_PW){
+    $('login').style.display = 'none';
+    $('admin').style.display = 'block';
+    boot();
+  } else {
+    $('loginErr').textContent = '비밀번호가 틀렸어요.';
+    $('pw').value = '';
+  }
+}
+$('loginBtn').addEventListener('click', tryLogin);
+$('pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') tryLogin(); });
+
+/* ── 탭 ── */
+$('tabs').addEventListener('click', function(e){
+  var b = e.target.closest('.tab-btn'); if (!b) return;
+  document.querySelectorAll('.tab-btn').forEach(function(x){ x.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(x){ x.classList.remove('active'); });
+  b.classList.add('active');
+  var p = $('tab-' + b.dataset.tab);
+  if (p) p.classList.add('active');
+});
+
+/* =============================================================
+   목록 표 (공통 편집기)
+   ============================================================= */
+var DATA = {};   /* table -> rows */
+
+var LISTS = {
+  outfit:   { table:'collection_items', tbody:'tb-outfit',   filter:{col:'category',val:'outfit'},
+              cols:[{k:'image_url',t:'img'},{k:'label'},{k:'image_url'}] },
+  hair:     { table:'collection_items', tbody:'tb-hair',     filter:{col:'category',val:'hair'},
+              cols:[{k:'image_url',t:'img'},{k:'label'},{k:'image_url'}] },
+  roulette: { table:'roulette_odds',    tbody:'tb-roulette', cols:[{k:'label'},{k:'chance'}] },
+  pledge:   { table:'pledges',          tbody:'tb-pledge',   cols:[{k:'amount_label'},{k:'value',t:'num'},{k:'reward'}] },
+  personal: { table:'personal_rewards', tbody:'tb-personal', cols:[{k:'amount_label'},{k:'reward'}] },
+  top:      { table:'top_rewards',      tbody:'tb-top',      cols:[{k:'image_url',t:'img'},{k:'label'},{k:'image_url'}] },
+  record:   { table:'reward_records',   tbody:'tb-record',   cols:[{k:'nickname'},{k:'reward'},{k:'status',t:'sel',opts:['대기','진행중','완료']}] }
+};
+
+function cellHTML(row, c){
+  if (c.t === 'img')
+    return '<img class="thumb" src="'+esc(row.image_url)+'" alt="" referrerpolicy="no-referrer"'+
+           ' onerror="this.style.visibility=\'hidden\'">';
+  if (c.t === 'sel')
+    return '<select class="input" data-field="'+c.k+'">'+c.opts.map(function(o){
+      return '<option'+(String(row[c.k])===o?' selected':'')+'>'+esc(o)+'</option>'; }).join('')+'</select>';
+  return '<input class="input" type="text" data-field="'+c.k+'" value="'+esc(row[c.k])+'"'+
+         (c.t === 'num' ? ' inputmode="numeric"' : '')+'>';
+}
+
+function drawList(name){
+  var cfg = LISTS[name];
+  var rows = (DATA[cfg.table] || []).filter(function(r){
+    return !cfg.filter || String(r[cfg.filter.col]) === cfg.filter.val;
+  });
+  var tb = $(cfg.tbody);
+  if (!rows.length){
+    tb.innerHTML = '<tr><td colspan="'+(cfg.cols.length+2)+'"><div class="empty">아직 등록된 항목이 없어요. 위에서 추가해 주세요.</div></td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(function(r, i){
+    return '<tr data-list="'+name+'" data-id="'+r.id+'">'+
+      cfg.cols.map(function(c){ return '<td'+(c.t==='img'?' style="width:56px"':'')+'>'+cellHTML(r,c)+'</td>'; }).join('')+
+      '<td class="ord">'+
+        '<button class="ordbtn" data-move="-1"'+(i===0?' disabled':'')+'>▲</button>'+
+        '<button class="ordbtn" data-move="1"'+(i===rows.length-1?' disabled':'')+'>▼</button>'+
+      '</td>'+
+      '<td class="del"><button class="delbtn" data-del="1" title="삭제">🗑</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+/* ── 값 수정 → 즉시 저장 ── */
+document.addEventListener('change', async function(e){
+  var f = e.target.closest('[data-field]'); if (!f) return;
+  var tr = f.closest('tr'); if (!tr) return;
+  var patch = {};
+  var list = tr.dataset.list, tbl;
+  if (list) tbl = LISTS[list].table;
+  else if (tr.dataset.itemTier) tbl = 'cumulative_items';
+  else return;
+  var val = f.value;
+  if (f.dataset.field === 'value') val = num(val);
+  patch[f.dataset.field] = val;
+  var ok = await updateRow(tbl, tr.dataset.id, patch);
+  showToast(ok ? '수정했어요.' : '저장 실패 — 새로고침 후 다시 시도해 주세요.');
+  if (ok){
+    var arr = DATA[tbl] || [];
+    for (var i=0;i<arr.length;i++) if (String(arr[i].id) === tr.dataset.id) arr[i][f.dataset.field] = val;
+    if (f.dataset.field === 'image_url'){
+      var th = tr.querySelector('.thumb');
+      if (th){ th.src = val; th.style.visibility = 'visible'; }
+    }
+  }
+});
+
+/* ── 순서 · 삭제 ── */
+document.addEventListener('click', async function(e){
+  var mv = e.target.closest('[data-move]');
+  var dl = e.target.closest('[data-del]');
+  if (!mv && !dl) return;
+  var tr = e.target.closest('tr'); if (!tr) return;
+  var list = tr.dataset.list;
+  var tbl = list ? LISTS[list].table : 'cumulative_items';
+
+  if (dl){
+    if (!confirm('이 항목을 삭제할까요?')) return;
+    var ok = await deleteRow(tbl, tr.dataset.id);
+    if (!ok){ showToast('삭제 실패'); return; }
+    showToast('삭제했어요.');
+    await reloadAll();
+    return;
+  }
+
+  var dir = Number(mv.dataset.move);
+  var sibs;
+  if (list){
+    var cfg = LISTS[list];
+    sibs = (DATA[tbl] || []).filter(function(r){ return !cfg.filter || String(r[cfg.filter.col]) === cfg.filter.val; });
+  } else {
+    var tid = tr.dataset.itemTier;
+    sibs = (DATA['cumulative_items'] || []).filter(function(r){ return String(r.tier_id) === tid; });
+  }
+  var idx = -1;
+  for (var i=0;i<sibs.length;i++) if (String(sibs[i].id) === tr.dataset.id) idx = i;
+  var j = idx + dir;
+  if (idx < 0 || j < 0 || j >= sibs.length) return;
+  var a = sibs[idx], b = sibs[j];
+  await updateRow(tbl, a.id, { sort_order: b.sort_order });
+  await updateRow(tbl, b.id, { sort_order: a.sort_order });
+  showToast('순서를 바꿨어요.');
+  await reloadAll();
+});
+
+/* ── 추가 ── */
+async function addRow(kind){
+  var v = function(id){ var el = $(id); return el ? el.value.trim() : ''; };
+  var clear = function(ids){ ids.forEach(function(id){ if ($(id)) $(id).value = ''; }); };
+  var tbl, row, need;
+
+  if (kind === 'outfit' || kind === 'hair'){
+    need = v('add-'+kind+'-label');
+    if (!need) return showToast('이름을 적어주세요.');
+    tbl = 'collection_items';
+    row = { category:kind, label:need, image_url:v('add-'+kind+'-url'), sort_order:nextOrder(tbl,{category:kind}) };
+    clear(['add-'+kind+'-label','add-'+kind+'-url']);
+  } else if (kind === 'roulette'){
+    need = v('add-roulette-label');
+    if (!need) return showToast('항목을 적어주세요.');
+    tbl = 'roulette_odds';
+    row = { label:need, chance:v('add-roulette-chance'), sort_order:nextOrder(tbl) };
+    clear(['add-roulette-label','add-roulette-chance']);
+  } else if (kind === 'pledge'){
+    need = v('add-pledge-label');
+    if (!need) return showToast('표시 문구를 적어주세요.');
+    tbl = 'pledges';
+    row = { amount_label:need, value:num(v('add-pledge-value')), reward:v('add-pledge-reward'), sort_order:nextOrder(tbl) };
+    clear(['add-pledge-label','add-pledge-value','add-pledge-reward']);
+  } else if (kind === 'personal'){
+    need = v('add-personal-label');
+    if (!need) return showToast('개수 문구를 적어주세요.');
+    tbl = 'personal_rewards';
+    row = { amount_label:need, reward:v('add-personal-reward'), sort_order:nextOrder(tbl) };
+    clear(['add-personal-label','add-personal-reward']);
+  } else if (kind === 'top'){
+    need = v('add-top-label');
+    if (!need) return showToast('보상 이름을 적어주세요.');
+    tbl = 'top_rewards';
+    row = { label:need, image_url:v('add-top-url'), sort_order:nextOrder(tbl) };
+    clear(['add-top-label','add-top-url']);
+  } else if (kind === 'record'){
+    need = v('add-rec-nick');
+    if (!need) return showToast('닉네임을 적어주세요.');
+    tbl = 'reward_records';
+    row = { nickname:need, reward:v('add-rec-reward'), status:v('add-rec-status') || '대기', sort_order:nextOrder(tbl) };
+    clear(['add-rec-nick','add-rec-reward']);
+  } else if (kind === 'tier'){
+    need = v('add-tier-label');
+    if (!need) return showToast('구간 이름을 적어주세요.');
+    tbl = 'cumulative_tiers';
+    row = { amount_label:need, sort_order:nextOrder(tbl) };
+    clear(['add-tier-label']);
+  } else return;
+
+  var ok = await insertRow(tbl, row);
+  showToast(ok ? '추가했어요.' : '추가 실패 — SQL을 실행했는지 확인해 주세요.');
+  if (ok) await reloadAll();
+}
+function nextOrder(tbl, filter){
+  var rows = (DATA[tbl] || []).filter(function(r){
+    if (!filter) return true;
+    return Object.keys(filter).every(function(k){ return String(r[k]) === String(filter[k]); });
+  });
+  var max = 0;
+  rows.forEach(function(r){ max = Math.max(max, Number(r.sort_order) || 0); });
+  return max + 1;
+}
+document.addEventListener('click', function(e){
+  var b = e.target.closest('[data-add]'); if (!b) return;
+  addRow(b.dataset.add);
+});
+
+/* =============================================================
+   누적보상 — 구간 카드 + 구간 안 상품
+   ============================================================= */
+function drawTiers(){
+  var tiers = DATA['cumulative_tiers'] || [];
+  var items = DATA['cumulative_items'] || [];
+  var box = $('tierList');
+  if (!tiers.length){
+    box.innerHTML = '<div class="card"><div class="empty">구간이 아직 없어요. 위에서 구간을 먼저 만들어 주세요.</div></div>';
+    return;
+  }
+  box.innerHTML = tiers.map(function(t, ti){
+    var mine = items.filter(function(it){ return String(it.tier_id) === String(t.id); });
+    var rows = mine.length ? mine.map(function(it, i){
+      return '<tr data-item-tier="'+t.id+'" data-id="'+it.id+'">'+
+        '<td style="width:56px"><img class="thumb" src="'+esc(it.image_url)+'" alt="" referrerpolicy="no-referrer" onerror="this.style.visibility=\'hidden\'"></td>'+
+        '<td><input class="input" type="text" data-field="label" value="'+esc(it.label)+'"></td>'+
+        '<td><input class="input" type="text" data-field="image_url" value="'+esc(it.image_url)+'"></td>'+
+        '<td class="ord"><button class="ordbtn" data-move="-1"'+(i===0?' disabled':'')+'>▲</button>'+
+        '<button class="ordbtn" data-move="1"'+(i===mine.length-1?' disabled':'')+'>▼</button></td>'+
+        '<td class="del"><button class="delbtn" data-del="1" title="삭제">🗑</button></td></tr>';
+    }).join('') : '<tr><td colspan="5"><div class="empty">이 구간에 상품이 없어요.</div></td></tr>';
+
+    return '<div class="card">'+
+      '<div class="card-title">📦 <input class="input" style="max-width:220px;font:700 15px/1.3 \'Noto Serif KR\',serif" '+
+        'data-tier-name="'+t.id+'" value="'+esc(t.amount_label)+'">'+
+        '<span style="display:flex;gap:8px">'+
+          '<button class="ordbtn" data-tier-move="'+t.id+'" data-dir="-1"'+(ti===0?' disabled':'')+'>▲</button>'+
+          '<button class="ordbtn" data-tier-move="'+t.id+'" data-dir="1"'+(ti===tiers.length-1?' disabled':'')+'>▼</button>'+
+          '<button class="delbtn" data-tier-del="'+t.id+'" title="구간 삭제">🗑</button>'+
+        '</span></div>'+
+      '<div class="grid2">'+
+        '<div class="field"><label>상품 이름</label><input class="input" id="ai-label-'+t.id+'" type="text" placeholder="예: 지력 탁상시계"></div>'+
+        '<div class="field"><label>이미지 주소</label><input class="input" id="ai-url-'+t.id+'" type="text" placeholder="/rewards/clock.webp"></div>'+
+      '</div>'+
+      '<div class="row-end"><button class="btn primary" data-item-add="'+t.id+'">상품 추가</button></div>'+
+      '<div class="table-wrap"><table><thead><tr><th style="width:56px">사진</th><th>상품 이름</th><th>이미지 주소</th>'+
+      '<th class="ord">순서</th><th class="del">삭제</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '</div>';
+  }).join('');
+}
+
+document.addEventListener('click', async function(e){
+  var add = e.target.closest('[data-item-add]');
+  var del = e.target.closest('[data-tier-del]');
+  var mv  = e.target.closest('[data-tier-move]');
+
+  if (add){
+    var tid = add.dataset.itemAdd;
+    var label = $('ai-label-'+tid).value.trim();
+    if (!label) return showToast('상품 이름을 적어주세요.');
+    var url = $('ai-url-'+tid).value.trim();
+    var mine = (DATA['cumulative_items']||[]).filter(function(r){ return String(r.tier_id) === String(tid); });
+    var max = 0; mine.forEach(function(r){ max = Math.max(max, Number(r.sort_order)||0); });
+    var ok = await insertRow('cumulative_items', { tier_id:Number(tid), label:label, image_url:url, sort_order:max+1 });
+    showToast(ok ? '상품을 추가했어요.' : '추가 실패');
+    if (ok) await reloadAll();
+    return;
+  }
+  if (del){
+    if (!confirm('이 구간과 안에 든 상품을 모두 삭제할까요?')) return;
+    var id = del.dataset.tierDel;
+    var kids = (DATA['cumulative_items']||[]).filter(function(r){ return String(r.tier_id) === String(id); });
+    for (var i=0;i<kids.length;i++) await deleteRow('cumulative_items', kids[i].id);
+    await deleteRow('cumulative_tiers', id);
+    showToast('구간을 삭제했어요.');
+    await reloadAll();
+    return;
+  }
+  if (mv){
+    var tiers = DATA['cumulative_tiers'] || [];
+    var idx = -1;
+    for (var k=0;k<tiers.length;k++) if (String(tiers[k].id) === mv.dataset.tierMove) idx = k;
+    var j = idx + Number(mv.dataset.dir);
+    if (idx < 0 || j < 0 || j >= tiers.length) return;
+    await updateRow('cumulative_tiers', tiers[idx].id, { sort_order: tiers[j].sort_order });
+    await updateRow('cumulative_tiers', tiers[j].id, { sort_order: tiers[idx].sort_order });
+    showToast('순서를 바꿨어요.');
+    await reloadAll();
+  }
+});
+
+document.addEventListener('change', async function(e){
+  var t = e.target.closest('[data-tier-name]'); if (!t) return;
+  var ok = await updateRow('cumulative_tiers', t.dataset.tierName, { amount_label: t.value });
+  showToast(ok ? '구간 이름을 바꿨어요.' : '저장 실패');
+  if (ok){
+    (DATA['cumulative_tiers']||[]).forEach(function(r){
+      if (String(r.id) === t.dataset.tierName) r.amount_label = t.value; });
+  }
+});
+
+/* =============================================================
+   사이트 문구 · 팔레트
+   ============================================================= */
+function fillText(p){
+  profileKeys.forEach(function(k){
+    var el = $('f-' + k);
+    if (el && p[k] !== undefined && p[k] !== null) el.value = p[k];
+  });
+}
+async function saveSite(){
+  var patch = {};
+  profileKeys.forEach(function(k){
+    var el = $('f-' + k);
+    if (el) patch[k] = el.value;
+  });
+  var ok = await saveProfile(patch);
+  showToast(ok ? '저장했어요. 사이트를 새로고침하면 반영돼요.' : '저장 실패 — SQL 실행/키 설정을 확인해 주세요.');
+}
+
+function paintPreview(){
+  themeKeys.forEach(function(k){
+    var v = $('f-' + k).value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) document.documentElement.style.setProperty(THEME_MAP[k], v);
+  });
+}
+function fillTheme(p){
+  themeKeys.forEach(function(k){
+    var v = (p && p[k]) || THEME_DEFAULT[k];
+    $('f-' + k).value = v;
+    $('c-' + k).value = /^#[0-9a-fA-F]{6}$/.test(v) ? v : THEME_DEFAULT[k];
+  });
+  paintPreview();
+}
+themeKeys.forEach(function(k){
+  $('c-' + k).addEventListener('input', function(){ $('f-' + k).value = this.value; paintPreview(); });
+  $('f-' + k).addEventListener('input', function(){
+    if (/^#[0-9a-fA-F]{6}$/.test(this.value.trim())) $('c-' + k).value = this.value.trim();
+    paintPreview();
+  });
+});
+$('themeReset').addEventListener('click', function(){ fillTheme(THEME_DEFAULT); showToast('기본값으로 되돌렸어요. 저장을 눌러야 반영돼요.'); });
+
+async function saveTheme(){
+  var patch = {};
+  var bad = null;
+  themeKeys.forEach(function(k){
+    var v = $('f-' + k).value.trim();
+    if (!/^#[0-9a-fA-F]{6}$/.test(v)) bad = k;
+    patch[k] = v;
+  });
+  if (bad){ showToast('색 코드는 #7a1f1b 형식으로 6자리를 넣어주세요.'); return; }
+  var ok = await saveProfile(patch);
+  showToast(ok ? '팔레트를 저장했어요.' : '저장 실패');
+}
+
+document.addEventListener('click', function(e){
+  var b = e.target.closest('[data-save]'); if (!b) return;
+  if (b.dataset.save === 'site') saveSite();
+  if (b.dataset.save === 'theme') saveTheme();
+});
+
+/* =============================================================
+   문의함
+   ============================================================= */
+async function drawInquiries(){
+  var rows = (await fetchAll('inquiries', { order:'created_at', asc:false })) || [];
+  var box = $('inqList');
+  if (!rows.length){ box.innerHTML = '<div class="empty">아직 들어온 문의가 없어요.</div>'; return; }
+  box.innerHTML = rows.map(function(r){
+    var d = r.created_at ? new Date(r.created_at).toLocaleString('ko-KR') : '';
+    return '<div class="inq"><div class="inq-top"><span>'+esc(r.nickname || '익명')+'</span>'+
+      '<span>'+esc(d)+' <button class="delbtn" data-inq="'+r.id+'" title="삭제">🗑</button></span></div>'+
+      '<p>'+esc(r.message)+'</p></div>';
+  }).join('');
+}
+document.addEventListener('click', async function(e){
+  var b = e.target.closest('[data-inq]'); if (!b) return;
+  if (!confirm('이 문의를 삭제할까요?')) return;
+  var ok = await deleteRow('inquiries', b.dataset.inq);
+  showToast(ok ? '삭제했어요.' : '삭제 실패');
+  if (ok) drawInquiries();
+});
+$('inqReload').addEventListener('click', drawInquiries);
+
+/* =============================================================
+   로드
+   ============================================================= */
+async function reloadAll(){
+  var res = await Promise.all([
+    fetchAll('collection_items', { order:'sort_order' }),
+    fetchAll('roulette_odds',    { order:'sort_order' }),
+    fetchAll('pledges',          { order:'sort_order' }),
+    fetchAll('personal_rewards', { order:'sort_order' }),
+    fetchAll('cumulative_tiers', { order:'sort_order' }),
+    fetchAll('cumulative_items', { order:'sort_order' }),
+    fetchAll('top_rewards',      { order:'sort_order' }),
+    fetchAll('reward_records',   { order:'sort_order' })
+  ]);
+  DATA['collection_items'] = res[0] || [];
+  DATA['roulette_odds']    = res[1] || [];
+  DATA['pledges']          = res[2] || [];
+  DATA['personal_rewards'] = res[3] || [];
+  DATA['cumulative_tiers'] = res[4] || [];
+  DATA['cumulative_items'] = res[5] || [];
+  DATA['top_rewards']      = res[6] || [];
+  DATA['reward_records']   = res[7] || [];
+  Object.keys(LISTS).forEach(drawList);
+  drawTiers();
+}
+
+async function boot(){
+  var on = dbReady();
+  $('dbDot').className = 'dot' + (on ? ' on' : '');
+  $('dbState').textContent = on ? 'Supabase 연결됨' : 'Supabase 미설정 (supabase.js 상단 2줄을 채워주세요)';
+  if (!on){
+    Object.keys(LISTS).forEach(drawList);
+    drawTiers();
+    fillTheme(THEME_DEFAULT);
+    $('inqList').innerHTML = '<div class="empty">Supabase가 연결되어야 문의를 볼 수 있어요.</div>';
+    audit();
+    return;
+  }
+  var p = await fetchProfile();
+  fillText(p);
+  fillTheme(p);
+  await reloadAll();
+  await drawInquiries();
+  audit();
+}
+
+/* ── 자체 점검: profileKeys ↔ f-{키} 입력칸이 정확히 1:1인지 ── */
+function audit(){
+  var missing = profileKeys.filter(function(k){ return !$('f-' + k); });
+  var dead = [];
+  document.querySelectorAll('[id^="f-"]').forEach(function(el){
+    var k = el.id.slice(2);
+    if (profileKeys.indexOf(k) === -1 && themeKeys.indexOf(k) === -1) dead.push(k);
+  });
+  if (missing.length || dead.length)
+    console.warn('[스키마 점검] 입력칸 없음:', missing, '/ 죽은 입력칸:', dead);
+  else
+    console.log('[스키마 점검] ✅ profileKeys ' + profileKeys.length + '개 · 테마 ' + themeKeys.length + '개 — 죽은 필드 0');
+}
+
+})();
+</script>
+</body>
+</html>
