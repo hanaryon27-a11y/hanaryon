@@ -136,14 +136,20 @@ Connect to Git → repo 선택 → **Framework preset: None** (빌드 명령·�
 ```html
 <meta property="og:title" content="한아련 삼국지 API 공약">
 <meta property="og:description" content="삼국지 API 공약에 관한 모든 것을 한눈에 확인하세요.">
-<meta property="og:image" content="https://hanaryonpromise.pages.dev/og-v2.jpg">
+<meta property="og:image" content="/og-v2.jpg">
 ```
 
 - 이미지를 바꿀 땐 **파일명도 같이 바꾸세요** (`og-v2.jpg` → `og-v3.jpg`).
   같은 이름이면 카톡이 예전 이미지를 캐시해서 계속 옛것이 뜹니다.
 - 권장 크기 **1200 × 630**, 1MB 이하.
-- 그래도 옛 미리보기가 뜨면 카카오 디버거에서 캐시 초기화:
-  `https://developers.kakao.com/tool/debugger/sharing`
+- 이미지 주소는 **`/og-v2.jpg` 처럼 슬래시로 시작하는 상대경로**로 두세요.
+  도메인을 직접 적으면 오타 하나에 이미지가 통째로 안 뜨고, 나중에 도메인을 바꿔도 깨집니다.
+
+**미리보기가 안 바뀔 때 순서대로 확인**
+1. 브라우저에서 `배포주소/og-v2.jpg` 를 직접 열어본다 → **안 뜨면 파일이 업로드가 안 된 것**
+2. 카카오는 캐시 초기화: `https://developers.kakao.com/tool/debugger/sharing`
+3. 디스코드는 캐시가 오래 남습니다. 주소 뒤에 `?v=2` 를 붙여서 공유하면 새로 읽어옵니다
+   (`배포주소/?v=2` — 사이트는 똑같이 열립니다)
 
 ---
 
