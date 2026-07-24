@@ -134,6 +134,48 @@ function soopAvatar(id) {
   return 'https://profile.img.sooplive.co.kr/LOGO/' + id.slice(0, 2) + '/' + id + '/' + id + '.jpg';
 }
 
+/* =============================================================
+   보상기록 — 같은 시청자의 여러 건을 하나로 묶기
+   같은 SOOP 아이디(없으면 같은 닉네임)를 한 사람으로 본다.
+   ============================================================= */
+function recKey(r) {
+  var id = String((r && r.soop_id) || '').trim().toLowerCase();
+  return id ? 'id:' + id : 'nm:' + String((r && r.nickname) || '').trim();
+}
+
+/** 행 배열 → [{key, nickname, soop_id, items[], base}] (표시 순서대로) */
+function recGroups(rows) {
+  var map = {}, order = [];
+  (rows || []).forEach(function (r) {
+    var k = recKey(r);
+    if (!map[k]) {
+      map[k] = { key: k, nickname: r.nickname, soop_id: r.soop_id || '', items: [], base: Number(r.sort_order) || 0 };
+      order.push(k);
+    }
+    map[k].items.push(r);
+    map[k].base = Math.min(map[k].base, Number(r.sort_order) || 0);
+  });
+  var list = order.map(function (k) { return map[k]; });
+  list.sort(function (a, b) { return a.base - b.base; });
+  list.forEach(function (g) {
+    g.items.sort(function (a, b) { return (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0); });
+  });
+  return list;
+}
+
+/** 처리 현황 요약 → {done, total, cls} */
+function recSummary(items) {
+  items = items || [];
+  var done = 0, ing = 0;
+  items.forEach(function (i) {
+    var st = String(i.status || '');
+    if (st.indexOf('완료') > -1) done += 1;
+    else if (st.indexOf('진행') > -1) ing += 1;
+  });
+  var cls = (items.length && done === items.length) ? 'done' : ((ing || done) ? 'ing' : 'wait');
+  return { done: done, total: items.length, cls: cls };
+}
+
 /* ── 토스트 ── */
 function showToast(msg, ms) {
   var t = document.getElementById('toast');

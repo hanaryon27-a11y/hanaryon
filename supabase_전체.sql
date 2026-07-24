@@ -199,7 +199,11 @@ UPDATE profile SET data = '{
   "empty-tier":"이 구간에 등록된 보상이 없어요.",
   "empty-cumul":"등록된 누적보상 구간이 없어요.",
   "empty-top":"등록된 TOP5 보상이 없어요.",
+  "pledge-fs-label":"14","pledge-fs-text":"12",
+  "personal-fs-label":"20","personal-fs-text":"13",
   "rec-th-nick":"닉네임","rec-th-reward":"보상","rec-th-status":"상태",
+  "rec-more":"외","rec-count-unit":"건","rec-sum-label":"완료",
+  "rec-tap-hint":"이름을 누르면 받은 보상 전체를 볼 수 있어요.","rec-close":"닫기",
   "rec-glyph":"錄",
   "theme-wu-red":"#7a1f1b","theme-accent":"#ad342b","theme-gold":"#b38636",
   "theme-signal":"#58d9d7","theme-ink":"#211b15","theme-paper":"#f7f0df"

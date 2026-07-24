@@ -789,14 +789,14 @@ button {
 }
 
 .pledge-row strong {
-  font-size: 14px;
+  font-size: var(--fs-pledge-label, 14px);
   font-variant-numeric: tabular-nums;
 }
 
 .pledge-row p {
   margin: 0;
   color: #4b463f;
-  font-size: 12px;
+  font-size: var(--fs-pledge-text, 12px);
   line-height: 1.55;
   word-break: keep-all;
 }
@@ -863,7 +863,7 @@ button {
 .reward-row p {
   margin: 0;
   color: #4b463f;
-  font-size: 13px;
+  font-size: var(--fs-personal-text, 13px);
   line-height: 1.65;
   word-break: keep-all;
 }
@@ -887,7 +887,7 @@ button {
 
 .personal-view .reward-row strong {
   font-family: "Noto Serif KR", "Batang", Georgia, serif;
-  font-size: 20px;
+  font-size: var(--fs-personal-label, 20px);
 }
 
 .product-tiers {
@@ -1861,4 +1861,79 @@ body.dark .look-card figcaption span{ color:#ffb59f; }
 }
 @media (prefers-reduced-motion: reduce){
   .lb-frame{ animation:none; }
+}
+
+/* =====================================================================
+   ▓ 보상기록 — 시청자 묶음 · 상세 모달
+   ===================================================================== */
+.records-row.open{ cursor:pointer; transition:120ms ease; }
+.records-row.open:hover > span,
+.records-row.open:focus-visible > span{
+  background:color-mix(in srgb, var(--card-bg) 84%, var(--gold));
+}
+.records-row.open:focus-visible{ outline:2px solid var(--wu-red); outline-offset:-2px; }
+
+.rec-hint{
+  padding:11px 14px 2px;
+  color:var(--muted);
+  font-size:11.5px;
+  text-align:center;
+}
+
+/* ── 상세 모달 ── */
+.rec-box{ width:min(480px,100%); }
+.rec-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:16px;
+  padding-bottom:14px;
+  border-bottom:1px solid rgba(33,27,21,.35);
+}
+.rec-head h3{ margin:0; }
+.rec-av-big{
+  width:56px;
+  height:56px;
+  flex:0 0 56px;
+  object-fit:cover;
+  border:2px solid var(--gold);
+  border-radius:3px;
+  background:color-mix(in srgb,var(--paper) 80%,#c9a86a);
+  box-shadow:inset 0 0 0 2px rgba(122,31,27,.25),3px 3px 0 rgba(19,12,9,.4);
+}
+.rec-list{
+  display:grid;
+  gap:8px;
+  max-height:52vh;
+  overflow-y:auto;
+  padding-right:2px;
+}
+.rec-item{
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr) auto;
+  gap:11px;
+  align-items:center;
+  padding:11px 13px;
+  border:1px solid var(--line);
+  border-left:4px solid var(--wu-red);
+  border-radius:3px;
+  background:var(--card-bg);
+}
+.rec-item p{
+  margin:0;
+  font-size:13px;
+  line-height:1.55;
+  word-break:keep-all;
+}
+.rec-no{
+  color:var(--muted);
+  font:800 11px/1 "Noto Sans KR",sans-serif;
+  letter-spacing:.06em;
+}
+body.dark .rec-item{ background:#332821; }
+
+@media (max-width:560px){
+  .rec-item{ grid-template-columns:24px minmax(0,1fr); gap:6px 8px; }
+  .rec-item .rec-chip{ grid-column:2; justify-self:start; }
+  .rec-av-big{ width:46px; height:46px; flex-basis:46px; }
 }

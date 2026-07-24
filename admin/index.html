@@ -153,6 +153,31 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
   color:var(--muted); font-size:10.5px; font-weight:800; letter-spacing:.06em; }
 .inq p{ margin:0; font-size:13px; line-height:1.75; white-space:pre-wrap; word-break:break-word; }
 
+/* ── 처리 현황 배지 ── */
+.recsum{ display:inline-grid; min-width:52px; min-height:24px; place-items:center; padding:0 9px;
+  border:1px solid rgba(77,63,48,.45); border-radius:99px; font-size:11px; font-weight:800; }
+.recsum.done{ border-color:var(--wu-red); background:var(--wu-red); color:#fff1d6; }
+.recsum.ing{ border-color:var(--gold); background:rgba(237,207,126,.35); color:#7d5400; }
+.recsum.wait{ color:var(--muted); }
+
+/* ── 시청자 관리 모달 ── */
+.modal{ position:fixed; z-index:110; inset:0; display:none; place-items:center; padding:24px 16px;
+  background:rgba(24,13,9,.68); backdrop-filter:blur(3px); }
+.modal.on{ display:grid; }
+.modal-box{ width:min(680px,100%); max-height:90vh; overflow-y:auto; padding:22px 24px 20px;
+  border:2px solid var(--ink); border-top:8px solid var(--wu-red); border-radius:3px;
+  background:linear-gradient(145deg,var(--panel-hi),var(--panel-lo));
+  box-shadow:9px 9px 0 rgba(19,12,9,.7); animation:in 280ms ease both; }
+.modal-head{ display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap;
+  margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid rgba(33,27,21,.4); }
+.modal-head .thumb{ flex:0 0 52px; }
+.modal-sum{ margin-bottom:10px; }
+@media(max-width:640px){
+  .modal-box{ padding:18px 16px; }
+  .modal-head{ align-items:stretch; }
+  .modal-head .btn{ width:100%; }
+}
+
 /* ── 토스트 ── */
 .toast{ position:fixed; z-index:120; bottom:24px; left:50%; padding:11px 20px;
   border:2px solid var(--ink); background:var(--wu-red); color:#fff2d8;
@@ -407,6 +432,14 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
         <div class="field"><label>배지 — 대기</label><input class="input" id="f-pledge-st-wait" type="text" placeholder="대기"></div>
       </div>
       <div class="field" style="margin-top:12px"><label>공약이 하나도 없을 때 문구</label><input class="input" id="f-empty-pledge" type="text" placeholder="등록된 공약이 없어요."></div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>글자 크기 — 개수 문구 (px)</label>
+          <input class="input" id="f-pledge-fs-label" type="number" min="8" max="48" step="1" placeholder="14"></div>
+        <div class="field"><label>글자 크기 — 보상 내용 (px)</label>
+          <input class="input" id="f-pledge-fs-text" type="number" min="8" max="48" step="1" placeholder="12"></div>
+      </div>
+      <div class="hint" style="margin-top:8px">기본값은 <b>개수 14 / 내용 12</b>. <code>8</code>~<code>48</code> 사이만 적용되고, 벗어나면 기본값으로 돌아갑니다.
+      너무 키우면 <b>모바일에서 줄이 넘칠 수</b> 있으니 2~3px씩 올려보며 확인하세요.</div>
       <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
     </div>
 
@@ -436,6 +469,13 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
         <div class="field"><label>부제</label><input class="input" id="f-personal-note" type="text"></div>
       </div>
       <div class="field" style="margin-top:12px"><label>목록이 비었을 때 문구</label><input class="input" id="f-empty-personal" type="text" placeholder="등록된 개인보상이 없어요."></div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>글자 크기 — 개수 문구 (px)</label>
+          <input class="input" id="f-personal-fs-label" type="number" min="8" max="48" step="1" placeholder="20"></div>
+        <div class="field"><label>글자 크기 — 보상 내용 (px)</label>
+          <input class="input" id="f-personal-fs-text" type="number" min="8" max="48" step="1" placeholder="13"></div>
+      </div>
+      <div class="hint" style="margin-top:8px">기본값은 <b>개수 20 / 내용 13</b>. 개인보상은 개수 문구가 붓글씨체(명조)라 누적공약보다 기본값이 큽니다.</div>
       <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
     </div>
 
@@ -529,32 +569,48 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
       <div class="field" style="margin-top:12px"><label>빈 화면 가운데 도장 글자</label>
         <input class="input" id="f-rec-glyph" type="text" maxlength="2" placeholder="錄">
         <div class="hint">한 글자 권장. 기록이 없을 때 가운데 뜨는 네모 도장 안 글자예요.</div></div>
-      <div class="hint">아래에 기록을 하나라도 넣으면 이 안내문 대신 <b>표</b>가 보여요.</div>
+      <div class="grid3" style="margin-top:12px">
+        <div class="field"><label>여러 건일 때 — 앞말</label><input class="input" id="f-rec-more" type="text" placeholder="외"></div>
+        <div class="field"><label>여러 건일 때 — 단위</label><input class="input" id="f-rec-count-unit" type="text" placeholder="건"></div>
+        <div class="field"><label>처리 현황 라벨</label><input class="input" id="f-rec-sum-label" type="text" placeholder="완료"></div>
+      </div>
+      <div class="hint" style="margin-top:8px">완성 예시 — 보상칸 <b>카드팩 외 2건</b> / 상태칸 <b>완료 1/3</b></div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>표 아래 안내문 (비우면 숨김)</label><input class="input" id="f-rec-tap-hint" type="text" placeholder="이름을 누르면 받은 보상 전체를 볼 수 있어요."></div>
+        <div class="field"><label>상세 모달 닫기 버튼</label><input class="input" id="f-rec-close" type="text" placeholder="닫기"></div>
+      </div>
+      <div class="hint" style="margin-top:8px">아래에 기록을 하나라도 넣으면 이 안내문 대신 <b>표</b>가 보여요.</div>
       <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
     </div>
 
     <div class="card">
-      <div class="card-title">📖 보상기록 목록</div>
+      <div class="card-title">➕ 시청자 추가</div>
       <div class="grid2">
         <div class="field"><label>닉네임</label><input class="input" id="add-rec-nick" type="text" placeholder="예: 지력이"></div>
         <div class="field"><label>SOOP 아이디 (비워도 됨)</label>
           <input class="input" id="add-rec-soop" type="text" placeholder="예: rkdmsdl782">
-          <div class="hint">아이디를 넣으면 그 사람 <b>프로필 사진이 자동</b>으로 옆에 떠요.
+          <div class="hint">아이디를 넣으면 그 사람 <b>프로필 사진이 자동</b>으로 떠요.
           방송국 주소 <code>sooplive.com/station/<b>rkdmsdl782</b></code>의 굵은 부분입니다.</div></div>
       </div>
       <div class="grid2" style="margin-top:12px">
-        <div class="field"><label>보상</label><input class="input" id="add-rec-reward" type="text" placeholder="예: 지력 탁상시계"></div>
-        <div class="field"><label>상태</label>
+        <div class="field"><label>첫 보상</label><input class="input" id="add-rec-reward" type="text" placeholder="예: 지력 탁상시계"></div>
+        <div class="field"><label>처리 상태</label>
           <select class="input" id="add-rec-status">
             <option value="대기">대기</option>
             <option value="진행중">진행중</option>
             <option value="완료">완료</option>
           </select></div>
       </div>
-      <div class="hint">상태에 따라 화면 배지 색이 바뀌어요 — <b>완료</b>는 붉은 인장, <b>진행중</b>은 금박, <b>대기</b>는 회색.</div>
-      <div class="row-end"><button class="btn primary" data-add="record">기록 추가</button></div>
+      <div class="hint">보상은 <b>일단 하나만</b> 넣고 추가하세요. 나머지는 아래 목록에서 <b>관리</b>를 눌러 얼마든지 더 넣을 수 있어요.
+      <br>이미 있는 사람과 <b>같은 SOOP 아이디</b>(아이디가 없으면 같은 닉네임)로 넣으면 그 사람 밑에 자동으로 합쳐집니다.</div>
+      <div class="row-end"><button class="btn primary" data-add="record">시청자 추가</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📖 시청자 목록</div>
+      <div class="hint" style="margin:0 0 10px"><b>관리</b>를 누르면 그 시청자의 보상을 여러 개 넣고, 건별로 <b>처리 상태</b>를 바꿀 수 있어요.</div>
       <div class="table-wrap">
-        <table><thead><tr><th style="width:56px">프사</th><th style="width:130px">닉네임</th><th style="width:150px">SOOP 아이디</th><th>보상</th><th style="width:110px">상태</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <table><thead><tr><th style="width:56px">프사</th><th style="width:140px">닉네임</th><th style="width:150px">SOOP 아이디</th><th>보상</th><th style="width:96px">처리</th><th style="width:74px">관리</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
         <tbody id="tb-record"></tbody></table>
       </div>
     </div>
@@ -625,6 +681,47 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
 
 </div>
 
+<!-- ── 시청자 관리 모달 ── -->
+<div class="modal" id="recModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <img class="thumb" id="rm-av" alt="" referrerpolicy="no-referrer" style="width:52px;height:52px"
+           onerror="this.style.visibility='hidden'">
+      <div style="flex:1;min-width:0">
+        <p class="kicker" style="margin:0 0 3px;color:var(--wu-red);font-size:9px;font-weight:850;letter-spacing:.2em">VIEWER</p>
+        <div class="grid2" style="gap:8px">
+          <div class="field" style="margin:0"><label>닉네임</label><input class="input" id="rm-nick" type="text"></div>
+          <div class="field" style="margin:0"><label>SOOP 아이디</label><input class="input" id="rm-soop" type="text" placeholder="비워도 됨"></div>
+        </div>
+      </div>
+      <button class="btn" id="rm-apply" style="padding:8px 12px;font-size:11px;white-space:nowrap">이름 저장</button>
+    </div>
+
+    <div class="modal-sum" id="rm-sum"></div>
+
+    <div class="table-wrap" style="max-height:44vh;overflow-y:auto">
+      <table><thead><tr><th style="width:36px">#</th><th>보상 내용</th><th style="width:118px">처리 상태</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+      <tbody id="rm-body"></tbody></table>
+    </div>
+
+    <div class="grid2" style="margin-top:14px">
+      <div class="field" style="margin:0"><label>보상 추가</label><input class="input" id="rm-new" type="text" placeholder="예: 단컷방셀 2장"></div>
+      <div class="field" style="margin:0"><label>처리 상태</label>
+        <select class="input" id="rm-newstatus">
+          <option value="대기">대기</option>
+          <option value="진행중">진행중</option>
+          <option value="완료">완료</option>
+        </select></div>
+    </div>
+    <div class="hint" style="margin-top:8px">보상 내용·상태는 <b>고치면 바로 저장</b>돼요. 닉네임·아이디만 <b>이름 저장</b> 버튼을 눌러야 합니다.</div>
+
+    <div class="row-end">
+      <button class="btn" id="rm-close">닫기</button>
+      <button class="btn primary" id="rm-add">보상 추가</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/supabase.js"></script>
 <script>
@@ -658,7 +755,9 @@ var profileKeys = [
   'pledge-st-done','pledge-st-next','pledge-st-wait','empty-pledge',
   'empty-personal','empty-tier','empty-cumul','empty-top',
   'rec-th-nick','rec-th-reward','rec-th-status','rec-glyph','site-icon','roulette-percol',
-  'loader-image','trans-prefix'
+  'loader-image','trans-prefix',
+  'pledge-fs-label','pledge-fs-text','personal-fs-label','personal-fs-text',
+  'rec-more','rec-count-unit','rec-sum-label','rec-tap-hint','rec-close'
 ];
 var themeKeys = ['theme-wu-red','theme-accent','theme-gold','theme-signal','theme-ink','theme-paper'];
 
@@ -709,9 +808,7 @@ var LISTS = {
   roulette: { table:'roulette_odds',    tbody:'tb-roulette', cols:[{k:'label'},{k:'chance'}] },
   pledge:   { table:'pledges',          tbody:'tb-pledge',   cols:[{k:'amount_label'},{k:'value',t:'num'},{k:'reward'}] },
   personal: { table:'personal_rewards', tbody:'tb-personal', cols:[{k:'amount_label'},{k:'reward'}] },
-  top:      { table:'top_rewards',      tbody:'tb-top',      cols:[{k:'image_url',t:'img'},{k:'label'},{k:'image_url'}] },
-  record:   { table:'reward_records',   tbody:'tb-record',
-              cols:[{k:'soop_id',t:'soop'},{k:'nickname'},{k:'soop_id'},{k:'reward'},{k:'status',t:'sel',opts:['대기','진행중','완료']}] }
+  top:      { table:'top_rewards',      tbody:'tb-top',      cols:[{k:'image_url',t:'img'},{k:'label'},{k:'image_url'}] }
 };
 
 function cellHTML(row, c){
@@ -1038,6 +1135,206 @@ document.addEventListener('click', function(e){
 });
 
 /* =============================================================
+   보상기록 — 시청자 묶음 + 관리 모달
+   ============================================================= */
+var STATUSES = ['대기', '진행중', '완료'];
+var recOpenKey = null;
+
+function recRows(){ return DATA['reward_records'] || []; }
+function recGroupList(){ return recGroups(recRows()); }
+function recFindGroup(key){
+  var g = recGroupList().filter(function(x){ return x.key === key; });
+  return g[0] || null;
+}
+
+/** 시청자 순서 · 건 순서를 sort_order 에 다시 새긴다 (그룹당 100칸) */
+async function reindexRecords(groups){
+  for (var gi = 0; gi < groups.length; gi++){
+    var items = groups[gi].items;
+    for (var ii = 0; ii < items.length; ii++){
+      var want = gi * 100 + ii;
+      if (Number(items[ii].sort_order) !== want){
+        await updateRow('reward_records', items[ii].id, { sort_order: want });
+      }
+    }
+  }
+}
+
+function drawRecords(){
+  var groups = recGroupList();
+  var tb = $('tb-record');
+  if (!groups.length){
+    tb.innerHTML = '<tr><td colspan="8"><div class="empty">아직 등록된 시청자가 없어요. 위에서 추가해 주세요.</div></td></tr>';
+    return;
+  }
+  tb.innerHTML = groups.map(function(g, i){
+    var s = recSummary(g.items);
+    var first = g.items[0] ? g.items[0].reward : '';
+    var more = g.items.length > 1 ? ' <span style="color:var(--muted)">외 '+(g.items.length-1)+'건</span>' : '';
+    return '<tr data-recgroup="'+esc(g.key)+'">'+
+      '<td style="width:56px"><img class="thumb" src="'+esc(soopAvatar(g.soop_id))+'" alt=""'+
+        ' referrerpolicy="no-referrer" onerror="this.style.visibility=\'hidden\'"></td>'+
+      '<td><b>'+esc(g.nickname)+'</b></td>'+
+      '<td style="color:var(--muted);font-size:11.5px">'+(g.soop_id ? esc(g.soop_id) : '—')+'</td>'+
+      '<td>'+esc(first)+more+'</td>'+
+      '<td style="text-align:center"><span class="recsum '+s.cls+'">'+s.done+' / '+s.total+'</span></td>'+
+      '<td style="text-align:center"><button class="btn" style="padding:5px 11px;font-size:11px" data-recopen="'+esc(g.key)+'">관리</button></td>'+
+      '<td class="ord">'+
+        '<button class="ordbtn" data-recmove="'+esc(g.key)+'" data-dir="-1"'+(i===0?' disabled':'')+'>▲</button>'+
+        '<button class="ordbtn" data-recmove="'+esc(g.key)+'" data-dir="1"'+(i===groups.length-1?' disabled':'')+'>▼</button>'+
+      '</td>'+
+      '<td class="del"><button class="delbtn" data-recdel="'+esc(g.key)+'" title="이 시청자 전체 삭제">🗑</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function drawRecModal(){
+  var g = recFindGroup(recOpenKey);
+  if (!g){ closeRecModal(); return; }
+  $('rm-nick').value = g.nickname || '';
+  $('rm-soop').value = g.soop_id || '';
+  var av = $('rm-av');
+  av.src = soopAvatar(g.soop_id);
+  av.style.visibility = g.soop_id ? 'visible' : 'hidden';
+  var s = recSummary(g.items);
+  $('rm-sum').innerHTML = '<span class="recsum '+s.cls+'">처리 '+s.done+' / '+s.total+'</span>';
+
+  $('rm-body').innerHTML = g.items.map(function(it, i){
+    return '<tr data-recitem="'+it.id+'">'+
+      '<td style="width:36px;color:var(--muted);font-size:11px">'+String(i+1).padStart(2,'0')+'</td>'+
+      '<td><input class="input" type="text" data-rfield="reward" value="'+esc(it.reward)+'"></td>'+
+      '<td style="width:118px"><select class="input" data-rfield="status">'+
+        STATUSES.map(function(o){ return '<option'+(String(it.status)===o?' selected':'')+'>'+o+'</option>'; }).join('')+
+      '</select></td>'+
+      '<td class="ord">'+
+        '<button class="ordbtn" data-ritemmove="'+it.id+'" data-dir="-1"'+(i===0?' disabled':'')+'>▲</button>'+
+        '<button class="ordbtn" data-ritemmove="'+it.id+'" data-dir="1"'+(i===g.items.length-1?' disabled':'')+'>▼</button>'+
+      '</td>'+
+      '<td class="del"><button class="delbtn" data-ritemdel="'+it.id+'" title="이 보상만 삭제">🗑</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function openRecModal(key){
+  recOpenKey = key;
+  drawRecModal();
+  $('recModal').classList.add('on');
+}
+function closeRecModal(){
+  recOpenKey = null;
+  $('recModal').classList.remove('on');
+}
+
+/* ── 모달 안 조작 ── */
+document.addEventListener('click', async function(e){
+  var open = e.target.closest('[data-recopen]');
+  if (open){ openRecModal(open.dataset.recopen); return; }
+  if (e.target.closest('#rm-close') || e.target.id === 'recModal'){ closeRecModal(); return; }
+
+  var del = e.target.closest('[data-recdel]');
+  if (del){
+    var g = recFindGroup(del.dataset.recdel);
+    if (!g) return;
+    if (!confirm('"'+g.nickname+'" 의 보상 '+g.items.length+'건을 모두 삭제할까요?')) return;
+    for (var i = 0; i < g.items.length; i++) await deleteRow('reward_records', g.items[i].id);
+    showToast('삭제했어요.');
+    await reloadAll();
+    return;
+  }
+
+  var mv = e.target.closest('[data-recmove]');
+  if (mv){
+    var groups = recGroupList();
+    var idx = -1;
+    for (var k = 0; k < groups.length; k++) if (groups[k].key === mv.dataset.recmove) idx = k;
+    var j = idx + Number(mv.dataset.dir);
+    if (idx < 0 || j < 0 || j >= groups.length) return;
+    var tmp = groups[idx]; groups[idx] = groups[j]; groups[j] = tmp;
+    await reindexRecords(groups);
+    showToast('순서를 바꿨어요.');
+    await reloadAll();
+    return;
+  }
+
+  var iAdd = e.target.closest('#rm-add');
+  if (iAdd){
+    var gg = recFindGroup(recOpenKey);
+    if (!gg) return;
+    var rw = $('rm-new').value.trim();
+    if (!rw) return showToast('보상 내용을 적어주세요.');
+    var maxo = 0;
+    gg.items.forEach(function(x){ maxo = Math.max(maxo, Number(x.sort_order) || 0); });
+    var ok = await insertRow('reward_records', {
+      nickname: gg.nickname, soop_id: gg.soop_id,
+      reward: rw, status: $('rm-newstatus').value || '대기', sort_order: maxo + 1
+    });
+    showToast(ok ? '보상을 추가했어요.' : '추가 실패');
+    if (ok){ $('rm-new').value = ''; await reloadAll(); drawRecModal(); }
+    return;
+  }
+
+  var iDel = e.target.closest('[data-ritemdel]');
+  if (iDel){
+    if (!confirm('이 보상 1건을 삭제할까요?')) return;
+    var okd = await deleteRow('reward_records', iDel.dataset.ritemdel);
+    showToast(okd ? '삭제했어요.' : '삭제 실패');
+    if (okd){ await reloadAll(); drawRecModal(); }
+    return;
+  }
+
+  var iMv = e.target.closest('[data-ritemmove]');
+  if (iMv){
+    var grp = recFindGroup(recOpenKey);
+    if (!grp) return;
+    var ix = -1;
+    for (var m = 0; m < grp.items.length; m++) if (String(grp.items[m].id) === iMv.dataset.ritemmove) ix = m;
+    var jx = ix + Number(iMv.dataset.dir);
+    if (ix < 0 || jx < 0 || jx >= grp.items.length) return;
+    var a = grp.items[ix], bb = grp.items[jx];
+    await updateRow('reward_records', a.id, { sort_order: bb.sort_order });
+    await updateRow('reward_records', bb.id, { sort_order: a.sort_order });
+    showToast('순서를 바꿨어요.');
+    await reloadAll(); drawRecModal();
+    return;
+  }
+
+  var rename = e.target.closest('#rm-apply');
+  if (rename){
+    var G = recFindGroup(recOpenKey);
+    if (!G) return;
+    var nn = $('rm-nick').value.trim();
+    var sid = $('rm-soop').value.trim();
+    if (!nn) return showToast('닉네임을 적어주세요.');
+    for (var q = 0; q < G.items.length; q++){
+      await updateRow('reward_records', G.items[q].id, { nickname: nn, soop_id: sid });
+    }
+    showToast('시청자 정보를 바꿨어요.');
+    recOpenKey = sid ? 'id:' + sid.toLowerCase() : 'nm:' + nn;
+    await reloadAll(); drawRecModal();
+  }
+});
+
+/* 모달 안 보상/상태 즉시 저장 */
+document.addEventListener('change', async function(e){
+  var f = e.target.closest('[data-rfield]');
+  if (!f) return;
+  var tr = f.closest('[data-recitem]');
+  if (!tr) return;
+  var patch = {}; patch[f.dataset.rfield] = f.value;
+  var ok = await updateRow('reward_records', tr.dataset.recitem, patch);
+  showToast(ok ? '수정했어요.' : '저장 실패');
+  if (ok){
+    recRows().forEach(function(r){ if (String(r.id) === tr.dataset.recitem) r[f.dataset.rfield] = f.value; });
+    var g = recFindGroup(recOpenKey);
+    if (g){
+      var s = recSummary(g.items);
+      $('rm-sum').innerHTML = '<span class="recsum '+s.cls+'">처리 '+s.done+' / '+s.total+'</span>';
+    }
+    drawRecords();
+  }
+});
+
+/* =============================================================
    문의함
    ============================================================= */
 async function drawInquiries(){
@@ -1084,6 +1381,7 @@ async function reloadAll(){
   DATA['reward_records']   = res[7] || [];
   Object.keys(LISTS).forEach(drawList);
   drawTiers();
+  drawRecords();
 }
 
 async function boot(){
@@ -1093,6 +1391,7 @@ async function boot(){
   if (!on){
     Object.keys(LISTS).forEach(drawList);
     drawTiers();
+    drawRecords();
     fillTheme(THEME_DEFAULT);
     $('inqList').innerHTML = '<div class="empty">Supabase가 연결되어야 문의를 볼 수 있어요.</div>';
     audit();
