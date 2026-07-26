@@ -1912,6 +1912,148 @@ body.dark .top-list li > span{ color:#2a1712; }
   text-align:center;
 }
 
+/* ── 검색 줄 ── */
+.rec-bar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:stretch;
+  margin-bottom:14px;
+}
+.rec-search{
+  width:100%;
+  box-sizing:border-box;
+  padding:12px 15px;
+  border:2px solid var(--ink);
+  border-radius:3px;
+  background:color-mix(in srgb,var(--paper) 94%,#fff);
+  color:var(--ink);
+  font:inherit;
+  font-size:13px;
+}
+.rec-search:focus{ outline:none; border-color:var(--wu-red); box-shadow:3px 3px 0 rgba(122,31,27,.32); }
+.rec-tally{
+  display:grid;
+  min-width:60px;
+  place-items:center;
+  padding:0 14px;
+  border:2px solid var(--ink);
+  border-radius:3px;
+  background:var(--wu-red);
+  color:#ffeecf;
+  font:800 17px/1 "Noto Serif KR",Georgia,serif;
+}
+.rec-tally small{ font-size:9px; font-weight:700; letter-spacing:.1em; opacity:.85; }
+
+/* ── 시청자 카드 격자 ── */
+.rec-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:11px;
+}
+.rec-card{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  gap:5px;
+  padding:20px 12px 15px;
+  cursor:pointer;
+  border:2px solid var(--ink);
+  border-radius:3px;
+  background:
+    repeating-linear-gradient(0deg, rgba(81,57,34,.028) 0 1px, transparent 1px 6px),
+    var(--card-bg);
+  box-shadow:4px 4px 0 rgba(22,13,10,.28);
+  font:inherit;
+  color:var(--ink);
+  text-align:center;
+  transition:150ms ease;
+}
+.rec-card:hover,
+.rec-card:focus-visible{
+  outline:none;
+  transform:translate(-2px,-2px);
+  box-shadow:7px 7px 0 rgba(22,13,10,.4),10px 10px 0 rgba(173,52,43,.32);
+  border-color:var(--wu-red);
+}
+.rec-card.cleared{ border-color:var(--wu-red); }
+.rec-card.cleared::after{
+  position:absolute;
+  top:9px;
+  left:9px;
+  padding:2px 6px;
+  content:"畢";
+  border:1px solid var(--wu-red);
+  color:var(--wu-red);
+  font:700 10px/1 "Noto Serif KR",Georgia,serif;
+}
+.rec-seal{
+  position:absolute;
+  top:8px;
+  right:9px;
+  color:var(--muted);
+  font:800 10px/1 Georgia,serif;
+  letter-spacing:.08em;
+}
+.rec-face,
+.rec-face-fb{
+  width:60px;
+  height:60px;
+  object-fit:cover;
+  border:2px solid var(--gold);
+  border-radius:3px;
+  background:color-mix(in srgb,var(--paper) 78%,#c9a86a);
+  box-shadow:inset 0 0 0 2px rgba(122,31,27,.22);
+}
+.rec-face-fb{
+  display:grid;
+  place-items:center;
+  color:var(--wu-red);
+  font:800 24px/1 "Noto Serif KR",Georgia,serif;
+}
+.rec-nick{
+  margin-top:3px;
+  font-size:13.5px;
+  font-weight:750;
+  line-height:1.3;
+  word-break:keep-all;
+}
+.rec-id{ color:var(--muted); font-size:10.5px; }
+.rec-total{
+  margin-top:2px;
+  padding:3px 12px;
+  border:1px solid var(--ink);
+  border-radius:99px;
+  background:var(--wu-red);
+  color:#ffeecf;
+  font-size:10.5px;
+  font-weight:800;
+}
+.rec-prog{
+  display:block;
+  width:100%;
+  height:5px;
+  margin-top:7px;
+  overflow:hidden;
+  border:1px solid rgba(33,27,21,.4);
+  background:rgba(33,27,21,.12);
+}
+.rec-prog i{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--wu-red));
+  transition:width 320ms ease;
+}
+.rec-progtx{ color:var(--muted); font-size:9.5px; font-weight:800; letter-spacing:.06em; }
+.rec-none{
+  grid-column:1/-1;
+  padding:34px;
+  border:1px dashed rgba(57,43,32,.4);
+  color:var(--muted);
+  font-size:12.5px;
+  text-align:center;
+}
+
 /* ── 상세 모달 ── */
 .rec-box{ width:min(480px,100%); }
 .rec-head{
@@ -1932,6 +2074,20 @@ body.dark .top-list li > span{ color:#2a1712; }
   border-radius:3px;
   background:color-mix(in srgb,var(--paper) 80%,#c9a86a);
   box-shadow:inset 0 0 0 2px rgba(122,31,27,.25),3px 3px 0 rgba(19,12,9,.4);
+}
+.rec-sum{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-bottom:12px;
+}
+.rec-sum .rec-prog{ flex:1; margin:0; }
+.rec-sum b{
+  color:var(--muted);
+  font-size:10.5px;
+  font-weight:800;
+  letter-spacing:.06em;
+  white-space:nowrap;
 }
 .rec-list{
   display:grid;
@@ -1962,10 +2118,66 @@ body.dark .top-list li > span{ color:#2a1712; }
   font:800 11px/1 "Noto Sans KR",sans-serif;
   letter-spacing:.06em;
 }
+
+/* 전달 완료 = 빗금 그어 지운 항목 */
+.rec-item.done{
+  border-left-color:var(--gold);
+  background:color-mix(in srgb,var(--card-bg) 88%,var(--gold));
+}
+.rec-item.done p{
+  color:var(--muted);
+  text-decoration:line-through;
+  text-decoration-color:var(--wu-red);
+  text-decoration-thickness:2px;
+}
+.rec-item.done .rec-no{ opacity:.55; }
+.rec-done{
+  padding:3px 9px;
+  border:1px solid var(--wu-red);
+  border-radius:99px;
+  background:var(--wu-red);
+  color:#fff1d6;
+  font-size:9.5px;
+  font-weight:800;
+  white-space:nowrap;
+}
 body.dark .rec-item{ background:#332821; }
 
 @media (max-width:560px){
   .rec-item{ grid-template-columns:24px minmax(0,1fr); gap:6px 8px; }
   .rec-item .rec-chip{ grid-column:2; justify-self:start; }
   .rec-av-big{ width:46px; height:46px; flex-basis:46px; }
+}
+
+/* ── 보상기록 카드 · 모달 다크 보정 ── */
+body.dark .rec-card{
+  background:
+    repeating-linear-gradient(0deg, rgba(255,236,198,.02) 0 1px, transparent 1px 6px),
+    #332821;
+  color:var(--ink);
+  box-shadow:4px 4px 0 rgba(8,5,4,.55);
+}
+body.dark .rec-card:hover,
+body.dark .rec-card:focus-visible{
+  box-shadow:7px 7px 0 rgba(8,5,4,.7),10px 10px 0 rgba(143,43,35,.5);
+}
+body.dark .rec-face,
+body.dark .rec-face-fb{ background:#231b16; }
+body.dark .rec-face-fb{ color:#ef9a86; }
+body.dark .rec-id,
+body.dark .rec-progtx,
+body.dark .rec-seal,
+body.dark .rec-sum b{ color:#bfae95; }
+body.dark .rec-prog{ background:rgba(255,240,214,.14); }
+body.dark .rec-search{ background:#241c17; color:var(--ink); border-color:#5b4a3a; }
+body.dark .rec-card.cleared::after{ border-color:#ef9a86; color:#ef9a86; }
+body.dark .rec-item.done{ background:#3a2d20; }
+body.dark .rec-item.done p{ color:#b9a88f; text-decoration-color:#ef9a86; }
+body.dark .rec-none{ color:#bfae95; }
+
+@media (max-width:520px){
+  .rec-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .rec-card{ padding:17px 8px 13px; }
+  .rec-face,.rec-face-fb{ width:52px; height:52px; }
+  .rec-nick{ font-size:12.5px; }
 }

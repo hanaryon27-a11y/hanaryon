@@ -153,6 +153,16 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
   color:var(--muted); font-size:10.5px; font-weight:800; letter-spacing:.06em; }
 .inq p{ margin:0; font-size:13px; line-height:1.75; white-space:pre-wrap; word-break:break-word; }
 
+/* ── 완료 체크박스 ── */
+.chk{ display:inline-flex; align-items:center; gap:7px; padding:0 11px; cursor:pointer;
+  border:1px solid var(--ink); border-radius:3px; background:rgba(255,255,255,.5);
+  font-size:12px; font-weight:750; user-select:none; transition:140ms ease; }
+.chk input{ width:15px; height:15px; margin:0; cursor:pointer; accent-color:var(--wu-red); }
+.chk:hover{ border-color:var(--wu-red); }
+.chk:has(input:checked){ background:var(--wu-red); color:#ffeecf; border-color:var(--ink); }
+tr.rowdone .rwtx{ color:var(--muted); text-decoration:line-through;
+  text-decoration-color:var(--wu-red); text-decoration-thickness:2px; }
+
 /* ── 처리 현황 배지 ── */
 .recsum{ display:inline-grid; min-width:52px; min-height:24px; place-items:center; padding:0 9px;
   border:1px solid rgba(77,63,48,.45); border-radius:99px; font-size:11px; font-weight:800; }
@@ -570,11 +580,16 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
         <input class="input" id="f-rec-glyph" type="text" maxlength="2" placeholder="錄">
         <div class="hint">한 글자 권장. 기록이 없을 때 가운데 뜨는 네모 도장 안 글자예요.</div></div>
       <div class="grid3" style="margin-top:12px">
-        <div class="field"><label>여러 건일 때 — 앞말</label><input class="input" id="f-rec-more" type="text" placeholder="외"></div>
-        <div class="field"><label>여러 건일 때 — 단위</label><input class="input" id="f-rec-count-unit" type="text" placeholder="건"></div>
-        <div class="field"><label>처리 현황 라벨</label><input class="input" id="f-rec-sum-label" type="text" placeholder="완료"></div>
+        <div class="field"><label>카드 배지 — 앞말</label><input class="input" id="f-rec-badge" type="text" placeholder="보상"></div>
+        <div class="field"><label>카드 배지 — 단위</label><input class="input" id="f-rec-count-unit" type="text" placeholder="건"></div>
+        <div class="field"><label>진행률 라벨</label><input class="input" id="f-rec-sum-label" type="text" placeholder="완료"></div>
       </div>
-      <div class="hint" style="margin-top:8px">완성 예시 — 보상칸 <b>카드팩 외 2건</b> / 상태칸 <b>완료 1/3</b></div>
+      <div class="hint" style="margin-top:8px">완성 예시 — 카드 배지 <b>보상 3건</b> / 진행률 <b>완료 1 / 3</b></div>
+      <div class="grid3" style="margin-top:12px">
+        <div class="field"><label>검색칸 안내글</label><input class="input" id="f-rec-search-ph" type="text" placeholder="🔍 닉네임 또는 아이디로 찾기"></div>
+        <div class="field"><label>검색 결과 없을 때</label><input class="input" id="f-rec-nores" type="text" placeholder="찾는 시청자가 없어요."></div>
+        <div class="field"><label>전달 완료 배지</label><input class="input" id="f-rec-done-note" type="text" placeholder="전달 완료"></div>
+      </div>
       <div class="grid2" style="margin-top:12px">
         <div class="field"><label>표 아래 안내문 (비우면 숨김)</label><input class="input" id="f-rec-tap-hint" type="text" placeholder="이름을 누르면 받은 보상 전체를 볼 수 있어요."></div>
         <div class="field"><label>상세 모달 닫기 버튼</label><input class="input" id="f-rec-close" type="text" placeholder="닫기"></div>
@@ -594,12 +609,9 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
       </div>
       <div class="grid2" style="margin-top:12px">
         <div class="field"><label>첫 보상</label><input class="input" id="add-rec-reward" type="text" placeholder="예: 지력 탁상시계"></div>
-        <div class="field"><label>처리 상태</label>
-          <select class="input" id="add-rec-status">
-            <option value="대기">대기</option>
-            <option value="진행중">진행중</option>
-            <option value="완료">완료</option>
-          </select></div>
+        <div class="field"><label>전달 여부</label>
+          <label class="chk" style="height:38px"><input type="checkbox" id="add-rec-done"><span>이미 전달 완료</span></label>
+        </div>
       </div>
       <div class="hint">보상은 <b>일단 하나만</b> 넣고 추가하세요. 나머지는 아래 목록에서 <b>관리</b>를 눌러 얼마든지 더 넣을 수 있어요.
       <br>이미 있는 사람과 <b>같은 SOOP 아이디</b>(아이디가 없으면 같은 닉네임)로 넣으면 그 사람 밑에 자동으로 합쳐집니다.</div>
@@ -700,20 +712,18 @@ textarea.input{ min-height:78px; line-height:1.65; resize:vertical; }
     <div class="modal-sum" id="rm-sum"></div>
 
     <div class="table-wrap" style="max-height:44vh;overflow-y:auto">
-      <table><thead><tr><th style="width:36px">#</th><th>보상 내용</th><th style="width:118px">처리 상태</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+      <table><thead><tr><th style="width:36px">#</th><th>보상 내용</th><th style="width:96px">전달</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
       <tbody id="rm-body"></tbody></table>
     </div>
 
     <div class="grid2" style="margin-top:14px">
       <div class="field" style="margin:0"><label>보상 추가</label><input class="input" id="rm-new" type="text" placeholder="예: 단컷방셀 2장"></div>
-      <div class="field" style="margin:0"><label>처리 상태</label>
-        <select class="input" id="rm-newstatus">
-          <option value="대기">대기</option>
-          <option value="진행중">진행중</option>
-          <option value="완료">완료</option>
-        </select></div>
+      <div class="field" style="margin:0"><label>전달 여부</label>
+        <label class="chk" style="height:38px"><input type="checkbox" id="rm-newdone"><span>이미 전달 완료</span></label>
+      </div>
     </div>
-    <div class="hint" style="margin-top:8px">보상 내용·상태는 <b>고치면 바로 저장</b>돼요. 닉네임·아이디만 <b>이름 저장</b> 버튼을 눌러야 합니다.</div>
+    <div class="hint" style="margin-top:8px"><b>전달</b>에 체크하면 사이트 모달에서 그 보상에 <b>빗금</b>이 그어집니다.
+    보상 내용·체크는 <b>바꾸면 바로 저장</b>돼요. 닉네임·아이디만 <b>이름 저장</b> 버튼을 눌러야 합니다.</div>
 
     <div class="row-end">
       <button class="btn" id="rm-close">닫기</button>
@@ -757,7 +767,8 @@ var profileKeys = [
   'rec-th-nick','rec-th-reward','rec-th-status','rec-glyph','site-icon','roulette-percol',
   'loader-image','trans-prefix',
   'pledge-fs-label','pledge-fs-text','personal-fs-label','personal-fs-text',
-  'rec-more','rec-count-unit','rec-sum-label','rec-tap-hint','rec-close'
+  'rec-count-unit','rec-sum-label','rec-tap-hint','rec-close',
+  'rec-search-ph','rec-badge','rec-nores','rec-done-note'
 ];
 var themeKeys = ['theme-wu-red','theme-accent','theme-gold','theme-signal','theme-ink','theme-paper'];
 
@@ -953,8 +964,10 @@ async function addRow(kind){
     if (!need) return showToast('닉네임을 적어주세요.');
     tbl = 'reward_records';
     row = { nickname:need, soop_id:v('add-rec-soop'), reward:v('add-rec-reward'),
-            status:v('add-rec-status') || '대기', sort_order:nextOrder(tbl) };
+            status: ($('add-rec-done') && $('add-rec-done').checked) ? '완료' : '대기',
+            sort_order:nextOrder(tbl) };
     clear(['add-rec-nick','add-rec-soop','add-rec-reward']);
+    if ($('add-rec-done')) $('add-rec-done').checked = false;
   } else if (kind === 'tier'){
     need = v('add-tier-label');
     if (!need) return showToast('구간 이름을 적어주세요.');
@@ -1137,7 +1150,6 @@ document.addEventListener('click', function(e){
 /* =============================================================
    보상기록 — 시청자 묶음 + 관리 모달
    ============================================================= */
-var STATUSES = ['대기', '진행중', '완료'];
 var recOpenKey = null;
 
 function recRows(){ return DATA['reward_records'] || []; }
@@ -1200,12 +1212,13 @@ function drawRecModal(){
   $('rm-sum').innerHTML = '<span class="recsum '+s.cls+'">처리 '+s.done+' / '+s.total+'</span>';
 
   $('rm-body').innerHTML = g.items.map(function(it, i){
-    return '<tr data-recitem="'+it.id+'">'+
+    var done = String(it.status || '').indexOf('완료') > -1;
+    return '<tr data-recitem="'+it.id+'"'+(done?' class="rowdone"':'')+'>'+
       '<td style="width:36px;color:var(--muted);font-size:11px">'+String(i+1).padStart(2,'0')+'</td>'+
-      '<td><input class="input" type="text" data-rfield="reward" value="'+esc(it.reward)+'"></td>'+
-      '<td style="width:118px"><select class="input" data-rfield="status">'+
-        STATUSES.map(function(o){ return '<option'+(String(it.status)===o?' selected':'')+'>'+o+'</option>'; }).join('')+
-      '</select></td>'+
+      '<td><input class="input rwtx" type="text" data-rfield="reward" value="'+esc(it.reward)+'"></td>'+
+      '<td style="width:96px;text-align:center">'+
+        '<label class="chk"><input type="checkbox" data-rdone="'+it.id+'"'+(done?' checked':'')+'>'+
+        '<span>완료</span></label></td>'+
       '<td class="ord">'+
         '<button class="ordbtn" data-ritemmove="'+it.id+'" data-dir="-1"'+(i===0?' disabled':'')+'>▲</button>'+
         '<button class="ordbtn" data-ritemmove="'+it.id+'" data-dir="1"'+(i===g.items.length-1?' disabled':'')+'>▼</button>'+
@@ -1266,10 +1279,10 @@ document.addEventListener('click', async function(e){
     gg.items.forEach(function(x){ maxo = Math.max(maxo, Number(x.sort_order) || 0); });
     var ok = await insertRow('reward_records', {
       nickname: gg.nickname, soop_id: gg.soop_id,
-      reward: rw, status: $('rm-newstatus').value || '대기', sort_order: maxo + 1
+      reward: rw, status: $('rm-newdone').checked ? '완료' : '대기', sort_order: maxo + 1
     });
     showToast(ok ? '보상을 추가했어요.' : '추가 실패');
-    if (ok){ $('rm-new').value = ''; await reloadAll(); drawRecModal(); }
+    if (ok){ $('rm-new').value = ''; $('rm-newdone').checked = false; await reloadAll(); drawRecModal(); }
     return;
   }
 
@@ -1314,7 +1327,20 @@ document.addEventListener('click', async function(e){
   }
 });
 
-/* 모달 안 보상/상태 즉시 저장 */
+/* 완료 체크 → 즉시 저장 */
+document.addEventListener('change', async function(e){
+  var cb = e.target.closest('[data-rdone]');
+  if (!cb) return;
+  var id = cb.dataset.rdone;
+  var ok = await updateRow('reward_records', id, { status: cb.checked ? '완료' : '대기' });
+  if (!ok){ cb.checked = !cb.checked; showToast('저장 실패'); return; }
+  showToast(cb.checked ? '전달 완료로 표시했어요.' : '전달 완료를 해제했어요.');
+  recRows().forEach(function(r){ if (String(r.id) === id) r.status = cb.checked ? '완료' : '대기'; });
+  drawRecModal();
+  drawRecords();
+});
+
+/* 모달 안 보상 내용 즉시 저장 */
 document.addEventListener('change', async function(e){
   var f = e.target.closest('[data-rfield]');
   if (!f) return;

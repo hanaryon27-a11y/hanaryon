@@ -76,6 +76,7 @@
         <h3 id="recName"></h3>
       </div>
     </div>
+    <div class="rec-sum" id="recSum"></div>
     <div class="rec-list" id="recList"></div>
     <div class="ask-actions"><button class="wu-btn" type="button" id="recClose">닫기</button></div>
   </div>
@@ -181,9 +182,12 @@ var DEFAULT_TEXT = {
   'personal-fs-label':'20', 'personal-fs-text':'13',
 
   'rec-th-nick':'닉네임', 'rec-th-reward':'보상', 'rec-th-status':'상태',
-  'rec-more':'외', 'rec-count-unit':'건', 'rec-sum-label':'완료',
+  'rec-count-unit':'건', 'rec-sum-label':'완료',
   'rec-tap-hint':'이름을 누르면 받은 보상 전체를 볼 수 있어요.',
   'rec-close':'닫기',
+  'rec-search-ph':'🔍 닉네임 또는 아이디로 찾기',
+  'rec-badge':'보상', 'rec-nores':'찾는 시청자가 없어요.',
+  'rec-done-note':'전달 완료',
   'rec-glyph':'錄'
 };
 
@@ -462,38 +466,59 @@ function stChip(st){
   return '<i class="rec-chip '+cls+'" style="font-style:normal">'+esc(st)+'</i>';
 }
 
+/** 시청자 카드 격자 (검색어로 걸러서 그림) */
+function recGridHTML(q){
+  q = String(q || '').trim().toLowerCase();
+  var list = RECG.map(function(g, gi){ return { g:g, gi:gi }; });
+  if (q) list = list.filter(function(x){
+    return String(x.g.nickname).toLowerCase().indexOf(q) > -1 ||
+           String(x.g.soop_id).toLowerCase().indexOf(q) > -1;
+  });
+  if (!list.length) return '<div class="rec-none">'+esc(q ? T('rec-nores') : T('rec-empty-title'))+'</div>';
+
+  return list.map(function(x){
+    var g = x.g, s = recSummary(g.items);
+    var ini = String(g.nickname || '?').charAt(0);
+    var av = (typeof soopAvatar === 'function') ? soopAvatar(g.soop_id) : '';
+    var face = av
+      ? '<img class="rec-face" src="'+esc(av)+'" alt="" loading="lazy" referrerpolicy="no-referrer"'+
+        ' onerror="this.className=\'rec-face-fb\';this.replaceWith(Object.assign(document.createElement(\'span\'),'+
+        '{className:\'rec-face-fb\',textContent:\''+esc(ini)+'\'}))">'
+      : '<span class="rec-face-fb">'+esc(ini)+'</span>';
+    var allDone = s.total && s.done === s.total;
+    return '<button class="rec-card'+(allDone?' cleared':'')+'" type="button" data-rec="'+x.gi+'"'+
+           ' aria-label="'+esc(g.nickname)+' 보상 '+s.total+'건 자세히 보기">'+
+      '<span class="rec-seal">'+String(x.gi+1).padStart(2,'0')+'</span>'+
+      face+
+      '<span class="rec-nick">'+esc(g.nickname)+'</span>'+
+      '<span class="rec-id">'+(g.soop_id ? esc(g.soop_id) : '&nbsp;')+'</span>'+
+      '<span class="rec-total">'+esc(T('rec-badge'))+' '+s.total+esc(T('rec-count-unit'))+'</span>'+
+      '<span class="rec-prog"><i style="width:'+(s.total? (s.done/s.total*100):0)+'%"></i></span>'+
+      '<span class="rec-progtx">'+esc(T('rec-sum-label'))+' '+s.done+' / '+s.total+'</span>'+
+    '</button>';
+  }).join('');
+}
+
 function recordsHTML(){
-  var body;
   RECG = (typeof recGroups === 'function') ? recGroups(S.records) : [];
-  if (RECG.length){
-    body = RECG.map(function(g, gi){
-      var s = recSummary(g.items);
-      var first = g.items[0] ? g.items[0].reward : '';
-      var more = g.items.length > 1
-        ? ' ' + T('rec-more') + ' ' + (g.items.length - 1) + T('rec-count-unit')
-        : '';
-      return '<div class="records-row open" role="row" tabindex="0" data-rec="'+gi+'"'+
-             ' aria-label="'+esc(g.nickname)+' 보상 '+g.items.length+'건 자세히 보기">'+
-        '<span class="rec-who" role="cell">'+recAvatarTag(g.soop_id,'rec-av')+'<b>'+esc(g.nickname)+'</b></span>'+
-        '<span role="cell">'+esc(first)+esc(more)+'</span>'+
-        '<span class="rec-state" role="cell"><i class="rec-chip '+s.cls+'" style="font-style:normal">'+
-          esc(T('rec-sum-label'))+' '+s.done+'/'+s.total+'</i></span>'+
-      '</div>';
-    }).join('') +
-    (T('rec-tap-hint') ? '<div class="rec-hint">'+esc(T('rec-tap-hint'))+'</div>' : '');
-  } else {
-    body = '<div class="records-empty"><strong>'+esc(T('rec-empty-title'))+'</strong>'+
-           '<p>'+esc(T('rec-empty-desc'))+'</p></div>';
+  if (!RECG.length){
+    return '<section class="reward-view records-view">'+
+      '<header class="reward-header"><p>'+esc(T('rec-kicker'))+'</p>'+
+        '<h1>'+esc(T('rec-title'))+'</h1><span>'+esc(T('rec-note'))+'</span></header>'+
+      '<div class="records-table"><div class="records-empty"><strong>'+esc(T('rec-empty-title'))+'</strong>'+
+      '<p>'+esc(T('rec-empty-desc'))+'</p></div></div></section>';
   }
   return '<section class="reward-view records-view">'+
     '<header class="reward-header"><p>'+esc(T('rec-kicker'))+'</p>'+
       '<h1>'+esc(T('rec-title'))+'</h1><span>'+esc(T('rec-note'))+'</span></header>'+
-    '<div class="records-table" role="table" aria-label="보상 기록">'+
-      '<div class="records-table-head" role="row">'+
-        '<span role="columnheader">'+esc(T('rec-th-nick'))+'</span>'+
-        '<span role="columnheader">'+esc(T('rec-th-reward'))+'</span>'+
-        '<span role="columnheader">'+esc(T('rec-th-status'))+'</span>'+
-      '</div>'+body+'</div></section>';
+    '<div class="rec-bar">'+
+      '<input class="rec-search" id="recSearch" type="search" autocomplete="off"'+
+        ' placeholder="'+esc(T('rec-search-ph'))+'" aria-label="시청자 검색">'+
+      '<span class="rec-tally">'+RECG.length+'<small>名</small></span>'+
+    '</div>'+
+    '<div class="rec-grid" id="recGrid">'+recGridHTML('')+'</div>'+
+    (T('rec-tap-hint') ? '<div class="rec-hint">'+esc(T('rec-tap-hint'))+'</div>' : '')+
+  '</section>';
 }
 
 /* ── 화면 그리기 ── */
@@ -636,11 +661,16 @@ function recOpen(gi){
   document.getElementById('recName').textContent = g.nickname;
   document.getElementById('recKicker').textContent = T('rec-kicker');
   document.getElementById('recClose').textContent = T('rec-close');
+  var sm = recSummary(g.items);
+  document.getElementById('recSum').innerHTML =
+    '<span class="rec-prog"><i style="width:'+(sm.total? (sm.done/sm.total*100):0)+'%"></i></span>'+
+    '<b>'+esc(T('rec-sum-label'))+' '+sm.done+' / '+sm.total+'</b>';
   document.getElementById('recList').innerHTML = g.items.map(function(it, i){
-    return '<div class="rec-item">'+
+    var done = String(it.status || '').indexOf('완료') > -1;
+    return '<div class="rec-item'+(done?' done':'')+'">'+
       '<span class="rec-no">'+pad2(i+1)+'</span>'+
       '<p>'+esc(it.reward)+'</p>'+
-      stChip(it.status)+
+      (done ? '<span class="rec-done">'+esc(T('rec-done-note'))+'</span>' : stChip(it.status))+
     '</div>';
   }).join('');
   recBack.classList.add('on');
@@ -651,13 +681,16 @@ function recCloseFn(){
   document.body.style.overflow = '';
 }
 document.addEventListener('click', function(e){
-  var row = e.target.closest('.records-row[data-rec]');
-  if (row){ recOpen(Number(row.dataset.rec)); return; }
+  var card = e.target.closest('[data-rec]');
+  if (card){ recOpen(Number(card.dataset.rec)); return; }
   if (e.target.closest('#recClose') || e.target === recBack) recCloseFn();
 });
-document.addEventListener('keydown', function(e){
-  var row = e.target.closest && e.target.closest('.records-row[data-rec]');
-  if ((e.key === 'Enter' || e.key === ' ') && row){ e.preventDefault(); recOpen(Number(row.dataset.rec)); }
+
+/* 검색 — 입력할 때마다 카드 격자만 다시 그림 */
+document.addEventListener('input', function(e){
+  if (e.target.id !== 'recSearch') return;
+  var grid = document.getElementById('recGrid');
+  if (grid) grid.innerHTML = recGridHTML(e.target.value);
 });
 
 /* ── 이미지 확대 ── */
