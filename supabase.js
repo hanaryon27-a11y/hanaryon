@@ -135,6 +135,86 @@ function soopAvatar(id) {
 }
 
 /* =============================================================
+   화면 문구 기본값 — index.html 과 admin 이 함께 쓰는 원본.
+   여기에만 적고 양쪽이 참조하므로 두 곳이 어긋날 일이 없다.
+   ============================================================= */
+var SITE_DEFAULTS = {
+  'site-title':'한아련 삼국지 API 공약',
+  'site-icon':'https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg',
+  'loader-image':'https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg',
+  'trans-prefix':'한아련&',
+  'brand-stamp':'吳', 'brand-sub':'JIRYEOK',
+  'side-note':'江東 · WU VIRTUAL ARCHIVE\nJIRYEOK OFFICE',
+  'nav-main-ko':'메인',        'nav-main-en':'MAIN',
+  'nav-pledge-ko':'누적공약',   'nav-pledge-en':'PROMISE',
+  'nav-personal-ko':'개인보상', 'nav-personal-en':'PERSONAL',
+  'nav-cumulative-ko':'누적보상','nav-cumulative-en':'TOTAL',
+  'nav-top5-ko':'TOP5 보상',    'nav-top5-en':'TOP 5',
+  'nav-records-ko':'룰렛보상',  'nav-records-en':'ROULETTE',
+  'nav-log-ko':'보상기록',      'nav-log-en':'LEDGER',
+  'outfit-kicker':'江東 · WU ARCHIVE / COLLECTION 01', 'outfit-title':'의상',
+  'hair-kicker':'江東 · WU ARCHIVE / COLLECTION 02',   'hair-title':'헤어',
+  'roulette-kicker':'江東 · WU ARCHIVE / EVENT GUIDE', 'roulette-title':'룰렛 확률',
+  'roulette-badge':'', 'roulette-note':'', 'roulette-percol':'5',
+  'roulette-mascot':'/bee-mascot.png',
+  'pledge-kicker':'CUMULATIVE PROMISE', 'pledge-title':'누적공약', 'pledge-note':'누적으로 다 합니다',
+  'pledge-current':'0',
+  'personal-kicker':'PERSONAL REWARD', 'personal-title':'개인보상', 'personal-note':'해당 개수로 쏴주시거나 따로 알려주세요',
+  'cumul-kicker':'CUMULATIVE REWARD', 'cumul-title':'누적보상', 'cumul-note':'룰렛 + 개인보상 모두 포함 · 1000개당 카드팩',
+  'top-kicker':'SPECIAL REWARD', 'top-title':'TOP5 보상', 'top-note':'1개 골라주세요',
+  'rec-kicker':'ROULETTE REWARD', 'rec-title':'룰렛보상', 'rec-note':'룰렛으로 나온 보상과 전달 상태',
+  'rec-empty-title':'아직 등록된 룰렛보상이 없어요.',
+  'rec-empty-desc':'전달이 시작되면 이곳에서 한눈에 확인할 수 있어요.',
+
+  'log-kicker':'REWARD LEDGER', 'log-title':'보상기록', 'log-note':'누적·개인·TOP5 보상의 전달 기록',
+  'log-empty-title':'아직 등록된 보상기록이 없어요.',
+  'log-empty-desc':'전달이 시작되면 이곳에서 한눈에 확인할 수 있어요.',
+  'log-search-ph':'🔍 닉네임 또는 아이디로 찾기',
+  'log-badge':'보상', 'log-count-unit':'건', 'log-sum-label':'완료',
+  'log-nores':'찾는 시청자가 없어요.', 'log-done-note':'전달 완료',
+  'log-tap-hint':'이름을 누르면 받은 보상 전체를 볼 수 있어요.',
+  'log-close':'닫기', 'log-glyph':'帳',
+  'ask-kicker':'CONTACT · 문의', 'ask-title':'사무소에 남기기',
+  'ask-desc':'보상 관련 문의나 하고 싶은 말을 남겨주세요. 확인 후 방송에서 안내드려요.',
+
+  'site-desc':'삼국지 API 공약에 관한 모든 것을 한눈에 확인하세요.',
+  'ask-btn':'✉ 문의하기',
+  'ask-nick-label':'닉네임', 'ask-nick-ph':'닉네임 (선택)',
+  'ask-msg-label':'내용',   'ask-msg-ph':'내용을 적어주세요',
+  'ask-close':'닫기', 'ask-send':'보내기',
+  'ask-need':'내용을 적어주세요.',
+  'ask-done':'문의가 전달됐어요. 고마워요!',
+  'ask-fail':'전송에 실패했어요. 잠시 뒤 다시 시도해 주세요.',
+
+  'look-prefix':'LOOK',
+  'empty-collection':'아직 등록된 항목이 없어요.',
+  'empty-roulette':'확률표가 아직 비어 있어요.',
+
+  'pledge-cur-label':'현재 누적', 'pledge-unit':'개',
+  'pledge-done-label':'달성 보상',
+  'pledge-next-prefix':'다음', 'pledge-next-suffix':'개 남음',
+  'pledge-all-done':'모든 누적공약 달성!',
+  'pledge-st-done':'달성', 'pledge-st-next':'다음', 'pledge-st-wait':'대기',
+  'empty-pledge':'등록된 공약이 없어요.',
+
+  'empty-personal':'등록된 개인보상이 없어요.',
+  'empty-tier':'이 구간에 등록된 보상이 없어요.',
+  'empty-cumul':'등록된 누적보상 구간이 없어요.',
+  'empty-top':'등록된 TOP5 보상이 없어요.',
+
+  'pledge-fs-label':'14', 'pledge-fs-text':'12',
+  'personal-fs-label':'20', 'personal-fs-text':'13',
+
+  'rec-count-unit':'건', 'rec-sum-label':'완료',
+  'rec-tap-hint':'이름을 누르면 받은 보상 전체를 볼 수 있어요.',
+  'rec-close':'닫기',
+  'rec-search-ph':'🔍 닉네임 또는 아이디로 찾기',
+  'rec-badge':'보상', 'rec-nores':'찾는 시청자가 없어요.',
+  'rec-done-note':'전달 완료',
+  'rec-glyph':'錄'
+};
+
+/* =============================================================
    보상기록 — 같은 시청자의 여러 건을 하나로 묶기
    같은 SOOP 아이디(없으면 같은 닉네임)를 한 사람으로 본다.
    ============================================================= */

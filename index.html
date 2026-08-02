@@ -121,75 +121,10 @@
 (function(){
 'use strict';
 
-var NAV_ORDER = ['main','pledge','personal','cumulative','top5','records'];
+var NAV_ORDER = ['main','pledge','personal','cumulative','top5','records','log'];
 
 /* ── 기본값 (DB가 비어 있어도 이대로 보임) ── */
-var DEFAULT_TEXT = {
-  'site-title':'한아련 삼국지 API 공약',
-  'site-icon':'https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg',
-  'loader-image':'https://profile.img.sooplive.co.kr/LOGO/rk/rkdmsdl782/rkdmsdl782.jpg',
-  'trans-prefix':'한아련&',
-  'brand-stamp':'吳', 'brand-sub':'JIRYEOK',
-  'side-note':'江東 · WU VIRTUAL ARCHIVE\nJIRYEOK OFFICE',
-  'nav-main-ko':'메인',        'nav-main-en':'MAIN',
-  'nav-pledge-ko':'누적공약',   'nav-pledge-en':'PROMISE',
-  'nav-personal-ko':'개인보상', 'nav-personal-en':'PERSONAL',
-  'nav-cumulative-ko':'누적보상','nav-cumulative-en':'TOTAL',
-  'nav-top5-ko':'TOP5 보상',    'nav-top5-en':'TOP 5',
-  'nav-records-ko':'보상기록',  'nav-records-en':'RECORDS',
-  'outfit-kicker':'江東 · WU ARCHIVE / COLLECTION 01', 'outfit-title':'의상',
-  'hair-kicker':'江東 · WU ARCHIVE / COLLECTION 02',   'hair-title':'헤어',
-  'roulette-kicker':'江東 · WU ARCHIVE / EVENT GUIDE', 'roulette-title':'룰렛 확률',
-  'roulette-badge':'', 'roulette-note':'', 'roulette-percol':'5',
-  'roulette-mascot':'/bee-mascot.png',
-  'pledge-kicker':'CUMULATIVE PROMISE', 'pledge-title':'누적공약', 'pledge-note':'누적으로 다 합니다',
-  'pledge-current':'0',
-  'personal-kicker':'PERSONAL REWARD', 'personal-title':'개인보상', 'personal-note':'해당 개수로 쏴주시거나 따로 알려주세요',
-  'cumul-kicker':'CUMULATIVE REWARD', 'cumul-title':'누적보상', 'cumul-note':'룰렛 + 개인보상 모두 포함 · 1000개당 카드팩',
-  'top-kicker':'SPECIAL REWARD', 'top-title':'TOP5 보상', 'top-note':'1개 골라주세요',
-  'rec-kicker':'REWARD RECORDS', 'rec-title':'보상기록', 'rec-note':'전달된 보상과 진행 상태를 정리하는 공간',
-  'rec-empty-title':'아직 등록된 보상 기록이 없어요.',
-  'rec-empty-desc':'전달이 시작되면 이곳에서 한눈에 확인할 수 있어요.',
-  'ask-kicker':'CONTACT · 문의', 'ask-title':'사무소에 남기기',
-  'ask-desc':'보상 관련 문의나 하고 싶은 말을 남겨주세요. 확인 후 방송에서 안내드려요.',
-
-  'site-desc':'삼국지 API 공약에 관한 모든 것을 한눈에 확인하세요.',
-  'ask-btn':'✉ 문의하기',
-  'ask-nick-label':'닉네임', 'ask-nick-ph':'닉네임 (선택)',
-  'ask-msg-label':'내용',   'ask-msg-ph':'내용을 적어주세요',
-  'ask-close':'닫기', 'ask-send':'보내기',
-  'ask-need':'내용을 적어주세요.',
-  'ask-done':'문의가 전달됐어요. 고마워요!',
-  'ask-fail':'전송에 실패했어요. 잠시 뒤 다시 시도해 주세요.',
-
-  'look-prefix':'LOOK',
-  'empty-collection':'아직 등록된 항목이 없어요.',
-  'empty-roulette':'확률표가 아직 비어 있어요.',
-
-  'pledge-cur-label':'현재 누적', 'pledge-unit':'개',
-  'pledge-done-label':'달성 보상',
-  'pledge-next-prefix':'다음', 'pledge-next-suffix':'개 남음',
-  'pledge-all-done':'모든 누적공약 달성!',
-  'pledge-st-done':'달성', 'pledge-st-next':'다음', 'pledge-st-wait':'대기',
-  'empty-pledge':'등록된 공약이 없어요.',
-
-  'empty-personal':'등록된 개인보상이 없어요.',
-  'empty-tier':'이 구간에 등록된 보상이 없어요.',
-  'empty-cumul':'등록된 누적보상 구간이 없어요.',
-  'empty-top':'등록된 TOP5 보상이 없어요.',
-
-  'pledge-fs-label':'14', 'pledge-fs-text':'12',
-  'personal-fs-label':'20', 'personal-fs-text':'13',
-
-  'rec-th-nick':'닉네임', 'rec-th-reward':'보상', 'rec-th-status':'상태',
-  'rec-count-unit':'건', 'rec-sum-label':'완료',
-  'rec-tap-hint':'이름을 누르면 받은 보상 전체를 볼 수 있어요.',
-  'rec-close':'닫기',
-  'rec-search-ph':'🔍 닉네임 또는 아이디로 찾기',
-  'rec-badge':'보상', 'rec-nores':'찾는 시청자가 없어요.',
-  'rec-done-note':'전달 완료',
-  'rec-glyph':'錄'
-};
+var DEFAULT_TEXT = (typeof SITE_DEFAULTS !== 'undefined') ? SITE_DEFAULTS : {};
 
 var DEFAULT_OUTFITS = [
   {label:'화이트 드레스', image_url:'/characters/look-01.webp'},
@@ -273,8 +208,16 @@ var S = {
   tiers: DEFAULT_TIERS.slice(),
   top: DEFAULT_TOP.slice(),
   roulette: DEFAULT_ROULETTE.slice(),
-  records: []
+  records: [],
+  logs: []
 };
+
+/* 보상기록 계열 두 화면의 설정 — 데이터·문구 접두어만 다르고 생김새는 같다 */
+var SECS = {
+  records: { pfx:'rec', get:function(){ return S.records; } },
+  log:     { pfx:'log', get:function(){ return S.logs; } }
+};
+var GRP = { records: [], log: [] };
 var view = 'main';
 
 /* ── 유틸 ── */
@@ -452,8 +395,6 @@ function topHTML(){
 }
 
 /* ── 보상기록 ── */
-var RECG = [];   /* 화면에 그려진 시청자 묶음 (모달에서 재사용) */
-
 function recAvatarTag(id, cls){
   var av = (typeof soopAvatar === 'function') ? soopAvatar(id) : '';
   if (!av) return '';
@@ -467,14 +408,15 @@ function stChip(st){
 }
 
 /** 시청자 카드 격자 (검색어로 걸러서 그림) */
-function recGridHTML(q){
+function recGridHTML(sec, q){
+  var P = SECS[sec].pfx;
   q = String(q || '').trim().toLowerCase();
-  var list = RECG.map(function(g, gi){ return { g:g, gi:gi }; });
+  var list = GRP[sec].map(function(g, gi){ return { g:g, gi:gi }; });
   if (q) list = list.filter(function(x){
     return String(x.g.nickname).toLowerCase().indexOf(q) > -1 ||
            String(x.g.soop_id).toLowerCase().indexOf(q) > -1;
   });
-  if (!list.length) return '<div class="rec-none">'+esc(q ? T('rec-nores') : T('rec-empty-title'))+'</div>';
+  if (!list.length) return '<div class="rec-none">'+esc(q ? T(P+'-nores') : T(P+'-empty-title'))+'</div>';
 
   return list.map(function(x){
     var g = x.g, s = recSummary(g.items);
@@ -486,44 +428,47 @@ function recGridHTML(q){
         '{className:\'rec-face-fb\',textContent:\''+esc(ini)+'\'}))">'
       : '<span class="rec-face-fb">'+esc(ini)+'</span>';
     var allDone = s.total && s.done === s.total;
-    return '<button class="rec-card'+(allDone?' cleared':'')+'" type="button" data-rec="'+x.gi+'"'+
+    return '<button class="rec-card'+(allDone?' cleared':'')+'" type="button" data-rec="'+sec+':'+x.gi+'"'+
            ' aria-label="'+esc(g.nickname)+' 보상 '+s.total+'건 자세히 보기">'+
       '<span class="rec-seal">'+String(x.gi+1).padStart(2,'0')+'</span>'+
       face+
       '<span class="rec-nick">'+esc(g.nickname)+'</span>'+
       '<span class="rec-id">'+(g.soop_id ? esc(g.soop_id) : '&nbsp;')+'</span>'+
-      '<span class="rec-total">'+esc(T('rec-badge'))+' '+s.total+esc(T('rec-count-unit'))+'</span>'+
+      '<span class="rec-total">'+esc(T(P+'-badge'))+' '+s.total+esc(T(P+'-count-unit'))+'</span>'+
       '<span class="rec-prog"><i style="width:'+(s.total? (s.done/s.total*100):0)+'%"></i></span>'+
-      '<span class="rec-progtx">'+esc(T('rec-sum-label'))+' '+s.done+' / '+s.total+'</span>'+
+      '<span class="rec-progtx">'+esc(T(P+'-sum-label'))+' '+s.done+' / '+s.total+'</span>'+
     '</button>';
   }).join('');
 }
 
-function recordsHTML(){
-  RECG = (typeof recGroups === 'function') ? recGroups(S.records) : [];
-  if (!RECG.length){
-    return '<section class="reward-view records-view">'+
-      '<header class="reward-header"><p>'+esc(T('rec-kicker'))+'</p>'+
-        '<h1>'+esc(T('rec-title'))+'</h1><span>'+esc(T('rec-note'))+'</span></header>'+
-      '<div class="records-table"><div class="records-empty"><strong>'+esc(T('rec-empty-title'))+'</strong>'+
-      '<p>'+esc(T('rec-empty-desc'))+'</p></div></div></section>';
+function sectionHTML(sec){
+  var P = SECS[sec].pfx;
+  var cls = (sec === 'log') ? 'records-view log-view' : 'records-view';
+  GRP[sec] = (typeof recGroups === 'function') ? recGroups(SECS[sec].get()) : [];
+  var head = '<header class="reward-header"><p>'+esc(T(P+'-kicker'))+'</p>'+
+    '<h1>'+esc(T(P+'-title'))+'</h1><span>'+esc(T(P+'-note'))+'</span></header>';
+
+  if (!GRP[sec].length){
+    return '<section class="reward-view '+cls+'">'+head+
+      '<div class="records-table"><div class="records-empty"><strong>'+esc(T(P+'-empty-title'))+'</strong>'+
+      '<p>'+esc(T(P+'-empty-desc'))+'</p></div></div></section>';
   }
-  return '<section class="reward-view records-view">'+
-    '<header class="reward-header"><p>'+esc(T('rec-kicker'))+'</p>'+
-      '<h1>'+esc(T('rec-title'))+'</h1><span>'+esc(T('rec-note'))+'</span></header>'+
+  return '<section class="reward-view '+cls+'">'+head+
     '<div class="rec-bar">'+
-      '<input class="rec-search" id="recSearch" type="search" autocomplete="off"'+
-        ' placeholder="'+esc(T('rec-search-ph'))+'" aria-label="시청자 검색">'+
-      '<span class="rec-tally">'+RECG.length+'<small>名</small></span>'+
+      '<input class="rec-search" id="recSearch-'+sec+'" type="search" autocomplete="off" data-sec="'+sec+'"'+
+        ' placeholder="'+esc(T(P+'-search-ph'))+'" aria-label="시청자 검색">'+
+      '<span class="rec-tally">'+GRP[sec].length+'<small>名</small></span>'+
     '</div>'+
-    '<div class="rec-grid" id="recGrid">'+recGridHTML('')+'</div>'+
-    (T('rec-tap-hint') ? '<div class="rec-hint">'+esc(T('rec-tap-hint'))+'</div>' : '')+
+    '<div class="rec-grid" id="recGrid-'+sec+'">'+recGridHTML(sec,'')+'</div>'+
+    (T(P+'-tap-hint') ? '<div class="rec-hint">'+esc(T(P+'-tap-hint'))+'</div>' : '')+
   '</section>';
 }
+function recordsHTML(){ return sectionHTML('records'); }
+function logHTML(){ return sectionHTML('log'); }
 
 /* ── 화면 그리기 ── */
 var BUILD = { main:mainHTML, pledge:pledgeHTML, personal:personalHTML,
-              cumulative:cumulativeHTML, top5:topHTML, records:recordsHTML };
+              cumulative:cumulativeHTML, top5:topHTML, records:recordsHTML, log:logHTML };
 
 function render(){
   var panel = document.getElementById('panel');
@@ -654,23 +599,24 @@ document.addEventListener('click', function(e){
 /* ── 보상기록 상세 모달 ── */
 var recBack = document.getElementById('recBack');
 
-function recOpen(gi){
-  var g = RECG[gi];
+function recOpen(sec, gi){
+  var P = SECS[sec] ? SECS[sec].pfx : 'rec';
+  var g = (GRP[sec] || [])[gi];
   if (!g) return;
   document.getElementById('recAv').innerHTML = recAvatarTag(g.soop_id, 'rec-av-big');
   document.getElementById('recName').textContent = g.nickname;
-  document.getElementById('recKicker').textContent = T('rec-kicker');
-  document.getElementById('recClose').textContent = T('rec-close');
+  document.getElementById('recKicker').textContent = T(P+'-kicker');
+  document.getElementById('recClose').textContent = T(P+'-close');
   var sm = recSummary(g.items);
   document.getElementById('recSum').innerHTML =
     '<span class="rec-prog"><i style="width:'+(sm.total? (sm.done/sm.total*100):0)+'%"></i></span>'+
-    '<b>'+esc(T('rec-sum-label'))+' '+sm.done+' / '+sm.total+'</b>';
+    '<b>'+esc(T(P+'-sum-label'))+' '+sm.done+' / '+sm.total+'</b>';
   document.getElementById('recList').innerHTML = g.items.map(function(it, i){
     var done = String(it.status || '').indexOf('완료') > -1;
     return '<div class="rec-item'+(done?' done':'')+'">'+
       '<span class="rec-no">'+pad2(i+1)+'</span>'+
       '<p>'+esc(it.reward)+'</p>'+
-      (done ? '<span class="rec-done">'+esc(T('rec-done-note'))+'</span>' : stChip(it.status))+
+      (done ? '<span class="rec-done">'+esc(T(P+'-done-note'))+'</span>' : stChip(it.status))+
     '</div>';
   }).join('');
   recBack.classList.add('on');
@@ -682,15 +628,20 @@ function recCloseFn(){
 }
 document.addEventListener('click', function(e){
   var card = e.target.closest('[data-rec]');
-  if (card){ recOpen(Number(card.dataset.rec)); return; }
+  if (card){
+    var parts = String(card.dataset.rec).split(':');
+    recOpen(parts[0], Number(parts[1]));
+    return;
+  }
   if (e.target.closest('#recClose') || e.target === recBack) recCloseFn();
 });
 
-/* 검색 — 입력할 때마다 카드 격자만 다시 그림 */
+/* 검색 — 입력할 때마다 해당 화면의 카드 격자만 다시 그림 */
 document.addEventListener('input', function(e){
-  if (e.target.id !== 'recSearch') return;
-  var grid = document.getElementById('recGrid');
-  if (grid) grid.innerHTML = recGridHTML(e.target.value);
+  var sec = e.target.dataset && e.target.dataset.sec;
+  if (!sec || !SECS[sec]) return;
+  var grid = document.getElementById('recGrid-' + sec);
+  if (grid) grid.innerHTML = recGridHTML(sec, e.target.value);
 });
 
 /* ── 이미지 확대 ── */
@@ -808,7 +759,8 @@ async function load(){
       fetchAll('cumulative_items', { order:'sort_order' }),
       fetchAll('top_rewards',      { order:'sort_order' }),
       fetchAll('roulette_odds',    { order:'sort_order' }),
-      fetchAll('reward_records',   { order:'sort_order' })
+      fetchAll('reward_records',   { order:'sort_order' }),
+      fetchAll('reward_log',       { order:'sort_order' })
     ]);
 
     /* null = 못 읽음(기본값 유지) / [] = 진짜 비어 있음(빈 상태 표시) */
@@ -829,6 +781,7 @@ async function load(){
     if (res[5]) S.top      = res[5];
     if (res[6]) S.roulette = res[6];
     S.records = res[7] || [];
+    S.logs    = res[8] || [];
   } catch(e){
     console.error('load 실패 — 기본값으로 표시합니다.', e);
   }
@@ -860,6 +813,7 @@ function applyStrings(){
   document.getElementById('askMsg').placeholder  = T('ask-msg-ph');
   paintCover('loadAv', 'loadStamp', 'loadName', view);
   document.documentElement.style.setProperty('--rec-glyph', '"' + String(T('rec-glyph')).replace(/"/g,'') + '"');
+  document.documentElement.style.setProperty('--log-glyph', '"' + String(T('log-glyph')).replace(/"/g,'') + '"');
 }
 
 /* ── 시작 ── */

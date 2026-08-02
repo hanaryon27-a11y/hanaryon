@@ -231,7 +231,8 @@ tr.rowdone .rwtx{ color:var(--muted); text-decoration:line-through;
     <button class="tab-btn" data-tab="personal">🎁 개인보상</button>
     <button class="tab-btn" data-tab="cumulative">📦 누적보상</button>
     <button class="tab-btn" data-tab="top5">🏆 TOP5</button>
-    <button class="tab-btn" data-tab="records">📖 보상기록</button>
+    <button class="tab-btn" data-tab="records">🎲 룰렛보상</button>
+    <button class="tab-btn" data-tab="log">📖 보상기록</button>
     <button class="tab-btn" data-tab="inquiry">✉️ 문의</button>
     <button class="tab-btn" data-tab="theme">🎨 테마</button>
   </div>
@@ -280,7 +281,7 @@ tr.rowdone .rwtx{ color:var(--muted); text-decoration:line-through;
     </div>
 
     <div class="card">
-      <div class="card-title">🧭 목차 (사이드바 6칸)</div>
+      <div class="card-title">🧭 목차 (사이드바 7칸)</div>
       <div class="hint" style="margin:0 0 12px">한글 이름은 크게, 영문은 위쪽 작은 글씨로 나옵니다. 순서·개수는 고정이에요.</div>
       <div class="grid2">
         <div class="field"><label>1. 메인 — 한글</label><input class="input" id="f-nav-main-ko" type="text" placeholder="메인"></div>
@@ -293,8 +294,10 @@ tr.rowdone .rwtx{ color:var(--muted); text-decoration:line-through;
         <div class="field"><label>4. 누적보상 — 영문</label><input class="input" id="f-nav-cumulative-en" type="text" placeholder="TOTAL"></div>
         <div class="field"><label>5. TOP5 — 한글</label><input class="input" id="f-nav-top5-ko" type="text" placeholder="TOP5 보상"></div>
         <div class="field"><label>5. TOP5 — 영문</label><input class="input" id="f-nav-top5-en" type="text" placeholder="TOP 5"></div>
-        <div class="field"><label>6. 보상기록 — 한글</label><input class="input" id="f-nav-records-ko" type="text" placeholder="보상기록"></div>
-        <div class="field"><label>6. 보상기록 — 영문</label><input class="input" id="f-nav-records-en" type="text" placeholder="RECORDS"></div>
+        <div class="field"><label>6. 룰렛보상 — 한글</label><input class="input" id="f-nav-records-ko" type="text" placeholder="룰렛보상"></div>
+        <div class="field"><label>6. 룰렛보상 — 영문</label><input class="input" id="f-nav-records-en" type="text" placeholder="ROULETTE"></div>
+        <div class="field"><label>7. 보상기록 — 한글</label><input class="input" id="f-nav-log-ko" type="text" placeholder="보상기록"></div>
+        <div class="field"><label>7. 보상기록 — 영문</label><input class="input" id="f-nav-log-en" type="text" placeholder="LEDGER"></div>
       </div>
       <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
     </div>
@@ -571,11 +574,6 @@ tr.rowdone .rwtx{ color:var(--muted); text-decoration:line-through;
         <div class="field"><label>기록이 없을 때 — 큰 글씨</label><input class="input" id="f-rec-empty-title" type="text"></div>
         <div class="field"><label>기록이 없을 때 — 작은 글씨</label><input class="input" id="f-rec-empty-desc" type="text"></div>
       </div>
-      <div class="grid3" style="margin-top:4px">
-        <div class="field"><label>표 머리 — 1번칸</label><input class="input" id="f-rec-th-nick" type="text" placeholder="닉네임"></div>
-        <div class="field"><label>표 머리 — 2번칸</label><input class="input" id="f-rec-th-reward" type="text" placeholder="보상"></div>
-        <div class="field"><label>표 머리 — 3번칸</label><input class="input" id="f-rec-th-status" type="text" placeholder="상태"></div>
-      </div>
       <div class="field" style="margin-top:12px"><label>빈 화면 가운데 도장 글자</label>
         <input class="input" id="f-rec-glyph" type="text" maxlength="2" placeholder="錄">
         <div class="hint">한 글자 권장. 기록이 없을 때 가운데 뜨는 네모 도장 안 글자예요.</div></div>
@@ -624,6 +622,72 @@ tr.rowdone .rwtx{ color:var(--muted); text-decoration:line-through;
       <div class="table-wrap">
         <table><thead><tr><th style="width:56px">프사</th><th style="width:140px">닉네임</th><th style="width:150px">SOOP 아이디</th><th>보상</th><th style="width:96px">처리</th><th style="width:74px">관리</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
         <tbody id="tb-record"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 보상기록 (신설) ══════════ -->
+  <div class="tab-panel" id="tab-log">
+    <div class="card">
+      <div class="card-title">✏️ 섹션 문구</div>
+      <div class="grid3">
+        <div class="field"><label>작은 영문 라벨</label><input class="input" id="f-log-kicker" type="text"></div>
+        <div class="field"><label>제목</label><input class="input" id="f-log-title" type="text" placeholder="보상기록"></div>
+        <div class="field"><label>부제</label><input class="input" id="f-log-note" type="text"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>기록이 없을 때 — 큰 글씨</label><input class="input" id="f-log-empty-title" type="text"></div>
+        <div class="field"><label>기록이 없을 때 — 작은 글씨</label><input class="input" id="f-log-empty-desc" type="text"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>빈 화면 가운데 도장 글자</label>
+        <input class="input" id="f-log-glyph" type="text" maxlength="2" placeholder="錄">
+        <div class="hint">한 글자 권장. 기록이 없을 때 가운데 뜨는 네모 도장 안 글자예요.</div></div>
+      <div class="grid3" style="margin-top:12px">
+        <div class="field"><label>카드 배지 — 앞말</label><input class="input" id="f-log-badge" type="text" placeholder="보상"></div>
+        <div class="field"><label>카드 배지 — 단위</label><input class="input" id="f-log-count-unit" type="text" placeholder="건"></div>
+        <div class="field"><label>진행률 라벨</label><input class="input" id="f-log-sum-label" type="text" placeholder="완료"></div>
+      </div>
+      <div class="hint" style="margin-top:8px">완성 예시 — 카드 배지 <b>보상 3건</b> / 진행률 <b>완료 1 / 3</b></div>
+      <div class="grid3" style="margin-top:12px">
+        <div class="field"><label>검색칸 안내글</label><input class="input" id="f-log-search-ph" type="text" placeholder="🔍 닉네임 또는 아이디로 찾기"></div>
+        <div class="field"><label>검색 결과 없을 때</label><input class="input" id="f-log-nores" type="text" placeholder="찾는 시청자가 없어요."></div>
+        <div class="field"><label>전달 완료 배지</label><input class="input" id="f-log-done-note" type="text" placeholder="전달 완료"></div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>표 아래 안내문 (비우면 숨김)</label><input class="input" id="f-log-tap-hint" type="text" placeholder="이름을 누르면 받은 보상 전체를 볼 수 있어요."></div>
+        <div class="field"><label>상세 모달 닫기 버튼</label><input class="input" id="f-log-close" type="text" placeholder="닫기"></div>
+      </div>
+      <div class="hint" style="margin-top:8px">아래에 기록을 하나라도 넣으면 이 안내문 대신 <b>카드</b>가 보여요.
+      이 탭은 <b>🎲 룰렛보상과 완전히 별개</b>인 장부라 데이터가 섞이지 않습니다.</div>
+      <div class="row-end"><button class="btn primary" data-save="site">저장</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">➕ 시청자 추가</div>
+      <div class="grid2">
+        <div class="field"><label>닉네임</label><input class="input" id="add-log-nick" type="text" placeholder="예: 지력이"></div>
+        <div class="field"><label>SOOP 아이디 (비워도 됨)</label>
+          <input class="input" id="add-log-soop" type="text" placeholder="예: rkdmsdl782">
+          <div class="hint">아이디를 넣으면 그 사람 <b>프로필 사진이 자동</b>으로 떠요.
+          방송국 주소 <code>sooplive.com/station/<b>rkdmsdl782</b></code>의 굵은 부분입니다.</div></div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>첫 보상</label><input class="input" id="add-log-reward" type="text" placeholder="예: 지력 탁상시계"></div>
+        <div class="field"><label>전달 여부</label>
+          <label class="chk" style="height:38px"><input type="checkbox" id="add-log-done"><span>이미 전달 완료</span></label>
+        </div>
+      </div>
+      <div class="hint">보상은 <b>일단 하나만</b> 넣고 추가하세요. 나머지는 아래 목록에서 <b>관리</b>를 눌러 얼마든지 더 넣을 수 있어요.
+      <br>이미 있는 사람과 <b>같은 SOOP 아이디</b>(아이디가 없으면 같은 닉네임)로 넣으면 그 사람 밑에 자동으로 합쳐집니다.</div>
+      <div class="row-end"><button class="btn primary" data-add="logrec">시청자 추가</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📖 시청자 목록</div>
+      <div class="hint" style="margin:0 0 10px"><b>관리</b>를 누르면 그 시청자의 보상을 여러 개 넣고, 건별로 <b>처리 상태</b>를 바꿀 수 있어요.</div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:56px">프사</th><th style="width:140px">닉네임</th><th style="width:150px">SOOP 아이디</th><th>보상</th><th style="width:96px">처리</th><th style="width:74px">관리</th><th class="ord">순서</th><th class="del">삭제</th></tr></thead>
+        <tbody id="tb-log"></tbody></table>
       </div>
     </div>
   </div>
@@ -764,15 +828,20 @@ var profileKeys = [
   'pledge-next-prefix','pledge-next-suffix','pledge-all-done',
   'pledge-st-done','pledge-st-next','pledge-st-wait','empty-pledge',
   'empty-personal','empty-tier','empty-cumul','empty-top',
-  'rec-th-nick','rec-th-reward','rec-th-status','rec-glyph','site-icon','roulette-percol',
+  'rec-glyph','site-icon','roulette-percol',
   'loader-image','trans-prefix',
   'pledge-fs-label','pledge-fs-text','personal-fs-label','personal-fs-text',
   'rec-count-unit','rec-sum-label','rec-tap-hint','rec-close',
-  'rec-search-ph','rec-badge','rec-nores','rec-done-note'
+  'rec-search-ph','rec-badge','rec-nores','rec-done-note',
+  'nav-log-ko','nav-log-en',
+  'log-kicker','log-title','log-note','log-empty-title','log-empty-desc',
+  'log-search-ph','log-badge','log-count-unit','log-sum-label',
+  'log-nores','log-done-note','log-tap-hint','log-close','log-glyph'
 ];
 var themeKeys = ['theme-wu-red','theme-accent','theme-gold','theme-signal','theme-ink','theme-paper'];
 
 var $ = function(id){ return document.getElementById(id); };
+var loadedOK = false;   /* 문구를 한 번이라도 제대로 불러왔는가 */
 function esc(v){
   if (v === null || v === undefined) return '';
   if (Array.isArray(v)) v = v.join(', ');
@@ -968,6 +1037,15 @@ async function addRow(kind){
             sort_order:nextOrder(tbl) };
     clear(['add-rec-nick','add-rec-soop','add-rec-reward']);
     if ($('add-rec-done')) $('add-rec-done').checked = false;
+  } else if (kind === 'logrec'){
+    need = v('add-log-nick');
+    if (!need) return showToast('닉네임을 적어주세요.');
+    tbl = 'reward_log';
+    row = { nickname:need, soop_id:v('add-log-soop'), reward:v('add-log-reward'),
+            status: ($('add-log-done') && $('add-log-done').checked) ? '완료' : '대기',
+            sort_order:nextOrder(tbl) };
+    clear(['add-log-nick','add-log-soop','add-log-reward']);
+    if ($('add-log-done')) $('add-log-done').checked = false;
   } else if (kind === 'tier'){
     need = v('add-tier-label');
     if (!need) return showToast('구간 이름을 적어주세요.');
@@ -1089,13 +1167,19 @@ document.addEventListener('change', async function(e){
 /* =============================================================
    사이트 문구 · 팔레트
    ============================================================= */
+/* DB에 아직 없는 키는 기본값으로 채운다.
+   빈칸으로 두면 저장 시 그 빈값이 DB에 박혀 화면 문구가 사라진다. */
 function fillText(p){
+  var DEF = (typeof SITE_DEFAULTS !== 'undefined') ? SITE_DEFAULTS : {};
   profileKeys.forEach(function(k){
     var el = $('f-' + k);
-    if (el && p[k] !== undefined && p[k] !== null) el.value = p[k];
+    if (!el) return;
+    if (p[k] !== undefined && p[k] !== null) el.value = p[k];
+    else el.value = (DEF[k] !== undefined) ? DEF[k] : '';
   });
 }
 async function saveSite(){
+  if (!loadedOK){ showToast('아직 값을 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.'); return; }
   var patch = {};
   profileKeys.forEach(function(k){
     var el = $('f-' + k);
@@ -1151,30 +1235,39 @@ document.addEventListener('click', function(e){
    보상기록 — 시청자 묶음 + 관리 모달
    ============================================================= */
 var recOpenKey = null;
+var recOpenSec = 'records';
 
-function recRows(){ return DATA['reward_records'] || []; }
-function recGroupList(){ return recGroups(recRows()); }
-function recFindGroup(key){
-  var g = recGroupList().filter(function(x){ return x.key === key; });
+/* 두 화면(룰렛보상 · 보상기록)은 쓰는 표만 다르고 동작은 같다 */
+var SECS = {
+  records: { table:'reward_records', tbody:'tb-record' },
+  log:     { table:'reward_log',     tbody:'tb-log' }
+};
+
+function recRows(sec){ return DATA[SECS[sec].table] || []; }
+function recGroupList(sec){ return recGroups(recRows(sec)); }
+function recFindGroup(sec, key){
+  var g = recGroupList(sec).filter(function(x){ return x.key === key; });
   return g[0] || null;
 }
 
 /** 시청자 순서 · 건 순서를 sort_order 에 다시 새긴다 (그룹당 100칸) */
-async function reindexRecords(groups){
+async function reindexRecords(sec, groups){
   for (var gi = 0; gi < groups.length; gi++){
     var items = groups[gi].items;
     for (var ii = 0; ii < items.length; ii++){
       var want = gi * 100 + ii;
       if (Number(items[ii].sort_order) !== want){
-        await updateRow('reward_records', items[ii].id, { sort_order: want });
+        await updateRow(SECS[sec].table, items[ii].id, { sort_order: want });
       }
     }
   }
 }
 
-function drawRecords(){
-  var groups = recGroupList();
-  var tb = $('tb-record');
+function drawRecords(sec){
+  if (!sec){ drawRecords('records'); drawRecords('log'); return; }
+  var groups = recGroupList(sec);
+  var tb = $(SECS[sec].tbody);
+  if (!tb) return;
   if (!groups.length){
     tb.innerHTML = '<tr><td colspan="8"><div class="empty">아직 등록된 시청자가 없어요. 위에서 추가해 주세요.</div></td></tr>';
     return;
@@ -1190,18 +1283,18 @@ function drawRecords(){
       '<td style="color:var(--muted);font-size:11.5px">'+(g.soop_id ? esc(g.soop_id) : '—')+'</td>'+
       '<td>'+esc(first)+more+'</td>'+
       '<td style="text-align:center"><span class="recsum '+s.cls+'">'+s.done+' / '+s.total+'</span></td>'+
-      '<td style="text-align:center"><button class="btn" style="padding:5px 11px;font-size:11px" data-recopen="'+esc(g.key)+'">관리</button></td>'+
+      '<td style="text-align:center"><button class="btn" style="padding:5px 11px;font-size:11px" data-recopen="'+esc(g.key)+'" data-sec="'+sec+'">관리</button></td>'+
       '<td class="ord">'+
-        '<button class="ordbtn" data-recmove="'+esc(g.key)+'" data-dir="-1"'+(i===0?' disabled':'')+'>▲</button>'+
-        '<button class="ordbtn" data-recmove="'+esc(g.key)+'" data-dir="1"'+(i===groups.length-1?' disabled':'')+'>▼</button>'+
+        '<button class="ordbtn" data-recmove="'+esc(g.key)+'" data-sec="'+sec+'" data-dir="-1"'+(i===0?' disabled':'')+'>▲</button>'+
+        '<button class="ordbtn" data-recmove="'+esc(g.key)+'" data-sec="'+sec+'" data-dir="1"'+(i===groups.length-1?' disabled':'')+'>▼</button>'+
       '</td>'+
-      '<td class="del"><button class="delbtn" data-recdel="'+esc(g.key)+'" title="이 시청자 전체 삭제">🗑</button></td>'+
+      '<td class="del"><button class="delbtn" data-recdel="'+esc(g.key)+'" data-sec="'+sec+'" title="이 시청자 전체 삭제">🗑</button></td>'+
     '</tr>';
   }).join('');
 }
 
 function drawRecModal(){
-  var g = recFindGroup(recOpenKey);
+  var g = recFindGroup(recOpenSec, recOpenKey);
   if (!g){ closeRecModal(); return; }
   $('rm-nick').value = g.nickname || '';
   $('rm-soop').value = g.soop_id || '';
@@ -1228,7 +1321,8 @@ function drawRecModal(){
   }).join('');
 }
 
-function openRecModal(key){
+function openRecModal(sec, key){
+  recOpenSec = SECS[sec] ? sec : 'records';
   recOpenKey = key;
   drawRecModal();
   $('recModal').classList.add('on');
@@ -1241,15 +1335,16 @@ function closeRecModal(){
 /* ── 모달 안 조작 ── */
 document.addEventListener('click', async function(e){
   var open = e.target.closest('[data-recopen]');
-  if (open){ openRecModal(open.dataset.recopen); return; }
+  if (open){ openRecModal(open.dataset.sec, open.dataset.recopen); return; }
   if (e.target.closest('#rm-close') || e.target.id === 'recModal'){ closeRecModal(); return; }
 
   var del = e.target.closest('[data-recdel]');
   if (del){
-    var g = recFindGroup(del.dataset.recdel);
+    var ds = del.dataset.sec;
+    var g = recFindGroup(ds, del.dataset.recdel);
     if (!g) return;
     if (!confirm('"'+g.nickname+'" 의 보상 '+g.items.length+'건을 모두 삭제할까요?')) return;
-    for (var i = 0; i < g.items.length; i++) await deleteRow('reward_records', g.items[i].id);
+    for (var i = 0; i < g.items.length; i++) await deleteRow(SECS[ds].table, g.items[i].id);
     showToast('삭제했어요.');
     await reloadAll();
     return;
@@ -1257,13 +1352,14 @@ document.addEventListener('click', async function(e){
 
   var mv = e.target.closest('[data-recmove]');
   if (mv){
-    var groups = recGroupList();
+    var ms = mv.dataset.sec;
+    var groups = recGroupList(ms);
     var idx = -1;
     for (var k = 0; k < groups.length; k++) if (groups[k].key === mv.dataset.recmove) idx = k;
     var j = idx + Number(mv.dataset.dir);
     if (idx < 0 || j < 0 || j >= groups.length) return;
     var tmp = groups[idx]; groups[idx] = groups[j]; groups[j] = tmp;
-    await reindexRecords(groups);
+    await reindexRecords(ms, groups);
     showToast('순서를 바꿨어요.');
     await reloadAll();
     return;
@@ -1271,13 +1367,13 @@ document.addEventListener('click', async function(e){
 
   var iAdd = e.target.closest('#rm-add');
   if (iAdd){
-    var gg = recFindGroup(recOpenKey);
+    var gg = recFindGroup(recOpenSec, recOpenKey);
     if (!gg) return;
     var rw = $('rm-new').value.trim();
     if (!rw) return showToast('보상 내용을 적어주세요.');
     var maxo = 0;
     gg.items.forEach(function(x){ maxo = Math.max(maxo, Number(x.sort_order) || 0); });
-    var ok = await insertRow('reward_records', {
+    var ok = await insertRow(SECS[recOpenSec].table, {
       nickname: gg.nickname, soop_id: gg.soop_id,
       reward: rw, status: $('rm-newdone').checked ? '완료' : '대기', sort_order: maxo + 1
     });
@@ -1289,7 +1385,7 @@ document.addEventListener('click', async function(e){
   var iDel = e.target.closest('[data-ritemdel]');
   if (iDel){
     if (!confirm('이 보상 1건을 삭제할까요?')) return;
-    var okd = await deleteRow('reward_records', iDel.dataset.ritemdel);
+    var okd = await deleteRow(SECS[recOpenSec].table, iDel.dataset.ritemdel);
     showToast(okd ? '삭제했어요.' : '삭제 실패');
     if (okd){ await reloadAll(); drawRecModal(); }
     return;
@@ -1297,15 +1393,15 @@ document.addEventListener('click', async function(e){
 
   var iMv = e.target.closest('[data-ritemmove]');
   if (iMv){
-    var grp = recFindGroup(recOpenKey);
+    var grp = recFindGroup(recOpenSec, recOpenKey);
     if (!grp) return;
     var ix = -1;
     for (var m = 0; m < grp.items.length; m++) if (String(grp.items[m].id) === iMv.dataset.ritemmove) ix = m;
     var jx = ix + Number(iMv.dataset.dir);
     if (ix < 0 || jx < 0 || jx >= grp.items.length) return;
     var a = grp.items[ix], bb = grp.items[jx];
-    await updateRow('reward_records', a.id, { sort_order: bb.sort_order });
-    await updateRow('reward_records', bb.id, { sort_order: a.sort_order });
+    await updateRow(SECS[recOpenSec].table, a.id, { sort_order: bb.sort_order });
+    await updateRow(SECS[recOpenSec].table, bb.id, { sort_order: a.sort_order });
     showToast('순서를 바꿨어요.');
     await reloadAll(); drawRecModal();
     return;
@@ -1313,13 +1409,13 @@ document.addEventListener('click', async function(e){
 
   var rename = e.target.closest('#rm-apply');
   if (rename){
-    var G = recFindGroup(recOpenKey);
+    var G = recFindGroup(recOpenSec, recOpenKey);
     if (!G) return;
     var nn = $('rm-nick').value.trim();
     var sid = $('rm-soop').value.trim();
     if (!nn) return showToast('닉네임을 적어주세요.');
     for (var q = 0; q < G.items.length; q++){
-      await updateRow('reward_records', G.items[q].id, { nickname: nn, soop_id: sid });
+      await updateRow(SECS[recOpenSec].table, G.items[q].id, { nickname: nn, soop_id: sid });
     }
     showToast('시청자 정보를 바꿨어요.');
     recOpenKey = sid ? 'id:' + sid.toLowerCase() : 'nm:' + nn;
@@ -1332,10 +1428,10 @@ document.addEventListener('change', async function(e){
   var cb = e.target.closest('[data-rdone]');
   if (!cb) return;
   var id = cb.dataset.rdone;
-  var ok = await updateRow('reward_records', id, { status: cb.checked ? '완료' : '대기' });
+  var ok = await updateRow(SECS[recOpenSec].table, id, { status: cb.checked ? '완료' : '대기' });
   if (!ok){ cb.checked = !cb.checked; showToast('저장 실패'); return; }
   showToast(cb.checked ? '전달 완료로 표시했어요.' : '전달 완료를 해제했어요.');
-  recRows().forEach(function(r){ if (String(r.id) === id) r.status = cb.checked ? '완료' : '대기'; });
+  recRows(recOpenSec).forEach(function(r){ if (String(r.id) === id) r.status = cb.checked ? '완료' : '대기'; });
   drawRecModal();
   drawRecords();
 });
@@ -1347,11 +1443,11 @@ document.addEventListener('change', async function(e){
   var tr = f.closest('[data-recitem]');
   if (!tr) return;
   var patch = {}; patch[f.dataset.rfield] = f.value;
-  var ok = await updateRow('reward_records', tr.dataset.recitem, patch);
+  var ok = await updateRow(SECS[recOpenSec].table, tr.dataset.recitem, patch);
   showToast(ok ? '수정했어요.' : '저장 실패');
   if (ok){
-    recRows().forEach(function(r){ if (String(r.id) === tr.dataset.recitem) r[f.dataset.rfield] = f.value; });
-    var g = recFindGroup(recOpenKey);
+    recRows(recOpenSec).forEach(function(r){ if (String(r.id) === tr.dataset.recitem) r[f.dataset.rfield] = f.value; });
+    var g = recFindGroup(recOpenSec, recOpenKey);
     if (g){
       var s = recSummary(g.items);
       $('rm-sum').innerHTML = '<span class="recsum '+s.cls+'">처리 '+s.done+' / '+s.total+'</span>';
@@ -1395,7 +1491,8 @@ async function reloadAll(){
     fetchAll('cumulative_tiers', { order:'sort_order' }),
     fetchAll('cumulative_items', { order:'sort_order' }),
     fetchAll('top_rewards',      { order:'sort_order' }),
-    fetchAll('reward_records',   { order:'sort_order' })
+    fetchAll('reward_records',   { order:'sort_order' }),
+    fetchAll('reward_log',       { order:'sort_order' })
   ]);
   DATA['collection_items'] = res[0] || [];
   DATA['roulette_odds']    = res[1] || [];
@@ -1405,6 +1502,7 @@ async function reloadAll(){
   DATA['cumulative_items'] = res[5] || [];
   DATA['top_rewards']      = res[6] || [];
   DATA['reward_records']   = res[7] || [];
+  DATA['reward_log']       = res[8] || [];
   Object.keys(LISTS).forEach(drawList);
   drawTiers();
   drawRecords();
@@ -1426,6 +1524,7 @@ async function boot(){
   var p = await fetchProfile();
   fillText(p);
   fillTheme(p);
+  loadedOK = true;
   await reloadAll();
   await drawInquiries();
   audit();

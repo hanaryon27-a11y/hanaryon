@@ -1127,6 +1127,10 @@ button {
   margin: 0 auto 18px;
   place-items: center;
   content: var(--rec-glyph, "錄");
+}
+
+.log-view .records-empty::before {
+  content: var(--log-glyph, "帳");
   border: 2px solid var(--wu-red);
   color: var(--wu-red);
   font: 700 26px/1 "Noto Serif KR", Georgia, serif;
